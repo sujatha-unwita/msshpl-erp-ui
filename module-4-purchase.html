@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purchase & Procurement — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#1e3a5f',
+            navydark: '#1a3050',
+            sky: '#0ea5e9',
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .tab-panel { animation: fadeIn 0.15s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .sidebar-link { transition: background 0.15s, color 0.15s; }
+    input[type="text"], input[type="date"], select, textarea {
+      outline: none;
+    }
+    input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+      box-shadow: 0 0 0 2px #0ea5e9;
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] font-sans text-gray-800" x-data="purchaseApp()">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 bg-[#1e3a5f] flex items-center justify-between px-4 z-50 shadow-md">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded bg-[#0ea5e9] flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      </div>
+      <span class="text-white font-semibold text-sm tracking-wide">MSSHPL ERP</span>
+      <span class="text-gray-400 text-sm">|</span>
+      <span class="text-sky-300 text-sm font-medium">Veeyes Engineering</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-sm text-gray-300">
+        <div class="w-7 h-7 rounded-full bg-[#0ea5e9] flex items-center justify-center text-white font-bold text-xs">SA</div>
+        <span class="text-white font-medium">Sujatha Admin</span>
+      </div>
+      <button class="text-xs bg-[#0ea5e9] hover:bg-sky-400 text-white px-3 py-1 rounded transition">Logout</button>
+    </div>
+  </nav>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="fixed top-12 left-0 bottom-0 w-52 bg-[#1a3050] flex flex-col z-40 overflow-y-auto">
+    <div class="px-3 py-3 border-b border-[#243f6a]">
+      <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold">Modules</p>
+    </div>
+    <nav class="flex-1 px-2 py-2 space-y-0.5">
+      <a href="dashboard.html" class="sidebar-link" style="background:#0f2840;border-bottom:1px solid rgba(255,255,255,0.08);">🏠 Home / Dashboard</a>
+  <a href="module-1-admin.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>🔐</span><span>Admin</span>
+      </a>
+      <a href="module-2-masters.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>📋</span><span>Masters</span>
+      </a>
+      <a href="module-3-sales.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>📦</span><span>Sales &amp; Orders</span>
+      </a>
+      <a href="module-4-purchase.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm bg-[#0ea5e9] text-white font-medium">
+        <span>🛒</span><span>Purchase</span>
+      </a>
+      <a href="module-5-production.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>⚙️</span><span>Production</span>
+      </a>
+      <a href="module-6-quality.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>✅</span><span>Quality</span>
+      </a>
+      <a href="module-7-dispatch.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>🚚</span><span>Dispatch</span>
+      </a>
+      <a href="module-8-subcontract.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>🔧</span><span>Subcontract</span>
+      </a>
+      <a href="module-9-inventory.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>📊</span><span>Inventory</span>
+      </a>
+      <a href="module-10-mis.html" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded text-sm text-gray-300 hover:bg-[#243f6a] hover:text-white">
+        <span>📈</span><span>MIS</span>
+      </a>
+    </nav>
+    <div class="px-3 py-3 border-t border-[#243f6a]">
+      <p class="text-xs text-gray-500">v2.5.1 · FY 2025-26</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 min-h-screen">
+
+    <!-- Module title bar -->
+    <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-[#0ea5e9] flex items-center justify-center">
+          <span class="text-white text-base">🛒</span>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-[#1e3a5f]">Purchase &amp; Procurement</h1>
+          <p class="text-xs text-gray-500">Indent · Purchase Order · GRN · Quality Inspection · Vendor Rating</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-gray-500">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded font-medium">FY 2025–26</span>
+        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded">26 May 2026</span>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="bg-white border-b border-gray-200 px-6 flex gap-1 shadow-sm">
+      <template x-for="tab in tabs" :key="tab.id">
+        <button
+          @click="activeTab = tab.id"
+          :class="activeTab === tab.id
+            ? 'border-b-2 border-[#0ea5e9] text-[#0ea5e9] font-semibold bg-sky-50'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+          class="px-4 py-3 text-sm transition-all whitespace-nowrap"
+          x-text="tab.label">
+        </button>
+      </template>
+    </div>
+
+    <!-- Tab content -->
+    <div class="p-6">
+
+      <!-- TAB 1: Indent -->
+      <div x-show="activeTab === 'indent'" x-cloak class="tab-panel space-y-4">
+
+        <!-- Action bar -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="flex items-center gap-1.5 bg-[#0ea5e9] hover:bg-sky-500 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New Indent
+          </button>
+          <button class="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Save
+          </button>
+          <button class="flex items-center gap-1.5 bg-[#1e3a5f] hover:bg-navydark text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Approve
+          </button>
+          <button class="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Generate PR
+          </button>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="text-xs text-gray-500">Indent Status:</span>
+            <span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200">Pending Finance Approval</span>
+          </div>
+        </div>
+
+        <!-- Header form -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <h3 class="text-sm font-bold text-[#1e3a5f] mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Purchase Indent Header
+          </h3>
+          <div class="grid grid-cols-4 gap-x-6 gap-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Indent No</label>
+              <input type="text" value="IND-2526-0234" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Date</label>
+              <input type="text" value="25-Apr-2026" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1 col-span-2">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Requested By</label>
+              <input type="text" value="Suresh B (Production Dept)" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Priority</label>
+              <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-red-50 text-red-700 font-semibold focus:border-sky-400">
+                <option>Urgent</option>
+                <option>High</option>
+                <option>Normal</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-1 col-span-3">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Remarks</label>
+              <input type="text" placeholder="Additional remarks..." class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Indent items table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+            <h3 class="text-sm font-bold text-[#1e3a5f]">Indent Items</h3>
+            <button class="text-xs text-[#0ea5e9] hover:underline font-medium">+ Add Item</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-[#1e3a5f] text-white text-xs">
+                  <th class="px-3 py-2.5 text-left w-8">Sr</th>
+                  <th class="px-3 py-2.5 text-left">Item / Component</th>
+                  <th class="px-3 py-2.5 text-left">Material Grade</th>
+                  <th class="px-3 py-2.5 text-center">Qty Required</th>
+                  <th class="px-3 py-2.5 text-center">Unit</th>
+                  <th class="px-3 py-2.5 text-center">Required Date</th>
+                  <th class="px-3 py-2.5 text-left">OA Reference</th>
+                  <th class="px-3 py-2.5 text-left">Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">01</td>
+                  <td class="px-3 py-2.5 font-medium">Body Casting — Gate Valve 6"</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">WCB (ASTM A216)</td>
+                  <td class="px-3 py-2.5 text-center font-bold text-gray-800">10</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-center text-xs text-gray-600">20-May-2026</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-[#0ea5e9]">OA-2526-0123</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">Urgent — short by 4 nos</td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors bg-gray-50/50">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">02</td>
+                  <td class="px-3 py-2.5 font-medium">Stem Bar Stock</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">SS 410 (AISI)</td>
+                  <td class="px-3 py-2.5 text-center font-bold text-gray-800">6</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-center text-xs text-gray-600">20-May-2026</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-[#0ea5e9]">OA-2526-0123</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">Short by 2 + buffer stock</td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">03</td>
+                  <td class="px-3 py-2.5 font-medium">Seat Ring — Valve 6"</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">SS 316 (AISI)</td>
+                  <td class="px-3 py-2.5 text-center font-bold text-gray-800">12</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-center text-xs text-gray-600">25-May-2026</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-[#0ea5e9]">OA-2526-0123</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">Short by 3 + buffer</td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors bg-gray-50/50">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">04</td>
+                  <td class="px-3 py-2.5 font-medium">Globe Valve Body 2"</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">A105 Forged</td>
+                  <td class="px-3 py-2.5 text-center font-bold text-gray-800">8</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-center text-xs text-gray-600">31-May-2026</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-[#0ea5e9]">OA-2526-0123</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">New procurement</td>
+                </tr>
+                <tr class="hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">05</td>
+                  <td class="px-3 py-2.5 font-medium">Stud Set M20 x 130</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">A193 Gr B7</td>
+                  <td class="px-3 py-2.5 text-center font-bold text-gray-800">50</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-center text-xs text-gray-600">20-May-2026</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-[#0ea5e9]">OA-2526-0123</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">Replenish stock</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Finance Approval section -->
+        <div class="bg-white rounded-lg shadow-sm border border-amber-200 p-5">
+          <h3 class="text-sm font-bold text-[#1e3a5f] mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Finance Approval
+            <span class="ml-2 px-2.5 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200">Pending</span>
+          </h3>
+          <div class="grid grid-cols-3 gap-4 items-end">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Approved By</label>
+              <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400">
+                <option>-- Select Approver --</option>
+                <option>Venkatesh M (Finance Manager)</option>
+                <option>Sujatha (Admin / Finance)</option>
+                <option>Rajesh K (CFO)</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Approval Date</label>
+              <input type="text" placeholder="DD-MMM-YYYY" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex items-end gap-2">
+              <button class="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1.5 rounded transition font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Approve
+              </button>
+              <button class="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-1.5 rounded transition font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Purchase Order -->
+      <div x-show="activeTab === 'po'" x-cloak class="tab-panel space-y-4">
+
+        <!-- Action bar -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="flex items-center gap-1.5 bg-[#0ea5e9] hover:bg-sky-500 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New PO
+          </button>
+          <button class="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Save
+          </button>
+          <button class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            Email PO
+          </button>
+          <button class="flex items-center gap-1.5 bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Print PO
+          </button>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="text-xs text-gray-500">PO Status:</span>
+            <span class="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">Confirmed</span>
+          </div>
+        </div>
+
+        <!-- Header form -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <h3 class="text-sm font-bold text-[#1e3a5f] mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Purchase Order Details
+          </h3>
+          <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PO Number</label>
+              <input type="text" value="PO-2526-0145" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PO Date</label>
+              <input type="text" value="28-Apr-2026" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vendor Name</label>
+              <input type="text" value="Steel Castings India Ltd" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vendor Code</label>
+              <input type="text" value="SCIL-001" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment Terms</label>
+              <input type="text" value="30 days from invoice" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Delivery Terms</label>
+              <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400">
+                <option>Ex-Works</option>
+                <option>FOR Destination</option>
+                <option>FOB</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Indent Reference</label>
+              <input type="text" value="IND-2526-0234" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Delivery Date</label>
+              <input type="text" value="31-May-2026" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Line items -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+            <h3 class="text-sm font-bold text-[#1e3a5f]">Line Items</h3>
+            <button class="text-xs text-[#0ea5e9] hover:underline font-medium">+ Add Item</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-[#1e3a5f] text-white text-xs">
+                  <th class="px-3 py-2.5 text-left w-8">Sr</th>
+                  <th class="px-3 py-2.5 text-left">Item Description</th>
+                  <th class="px-3 py-2.5 text-left">Grade</th>
+                  <th class="px-3 py-2.5 text-center">Qty</th>
+                  <th class="px-3 py-2.5 text-center">Unit</th>
+                  <th class="px-3 py-2.5 text-right">Rate (₹)</th>
+                  <th class="px-3 py-2.5 text-right">Amount (₹)</th>
+                  <th class="px-3 py-2.5 text-center">HSN Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">01</td>
+                  <td class="px-3 py-2.5 font-medium">Gate Valve Body Casting 6"</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">WCB</td>
+                  <td class="px-3 py-2.5 text-center font-semibold">10</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-right font-mono">4,500</td>
+                  <td class="px-3 py-2.5 text-right font-mono font-semibold">45,000</td>
+                  <td class="px-3 py-2.5 text-center font-mono text-xs text-gray-600">73259990</td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors bg-gray-50/50">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">02</td>
+                  <td class="px-3 py-2.5 font-medium">Globe Valve Body Casting 2"</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">A105</td>
+                  <td class="px-3 py-2.5 text-center font-semibold">8</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-right font-mono">2,800</td>
+                  <td class="px-3 py-2.5 text-right font-mono font-semibold">22,400</td>
+                  <td class="px-3 py-2.5 text-center font-mono text-xs text-gray-600">73259990</td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">03</td>
+                  <td class="px-3 py-2.5 font-medium">Stem Bar — SS410 Ø40mm</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">SS 410</td>
+                  <td class="px-3 py-2.5 text-center font-semibold">12</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-right font-mono">1,200</td>
+                  <td class="px-3 py-2.5 text-right font-mono font-semibold">14,400</td>
+                  <td class="px-3 py-2.5 text-center font-mono text-xs text-gray-600">72230090</td>
+                </tr>
+                <tr class="hover:bg-sky-50 transition-colors bg-gray-50/50">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">04</td>
+                  <td class="px-3 py-2.5 font-medium">Seat Ring Casting — SS316</td>
+                  <td class="px-3 py-2.5 text-gray-700 font-mono text-xs">SS 316</td>
+                  <td class="px-3 py-2.5 text-center font-semibold">20</td>
+                  <td class="px-3 py-2.5 text-center text-gray-600">Nos</td>
+                  <td class="px-3 py-2.5 text-right font-mono">900</td>
+                  <td class="px-3 py-2.5 text-right font-mono font-semibold">18,000</td>
+                  <td class="px-3 py-2.5 text-center font-mono text-xs text-gray-600">73259990</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-5 py-4 bg-gray-50 border-t border-gray-200">
+            <div class="flex justify-end">
+              <div class="w-72 space-y-2">
+                <div class="flex justify-between text-sm text-gray-600">
+                  <span>Sub Total</span>
+                  <span class="font-mono font-medium">₹ 99,800</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-600">
+                  <span>GST @ 18%</span>
+                  <span class="font-mono font-medium">₹ 17,964</span>
+                </div>
+                <div class="flex justify-between text-sm font-bold text-[#1e3a5f] pt-2 border-t border-gray-300">
+                  <span>Grand Total</span>
+                  <span class="font-mono text-base">₹ 1,17,764</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: GRN Entry -->
+      <div x-show="activeTab === 'grn'" x-cloak class="tab-panel space-y-4">
+
+        <!-- Action bar -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="flex items-center gap-1.5 bg-[#0ea5e9] hover:bg-sky-500 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New GRN
+          </button>
+          <button class="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Save
+          </button>
+          <button class="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Send for QA
+          </button>
+          <button class="flex items-center gap-1.5 bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1.5 rounded shadow-sm transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Print GRN
+          </button>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="text-xs text-gray-500">Inspection Status:</span>
+            <span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full border border-blue-200">Pending QA</span>
+          </div>
+        </div>
+
+        <!-- GRN Header form -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <h3 class="text-sm font-bold text-[#1e3a5f] mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            Goods Receipt Note
+          </h3>
+          <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">GRN Number</label>
+              <input type="text" value="GRN-2526-0089" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">GRN Date</label>
+              <input type="text" value="10-May-2026" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vendor</label>
+              <input type="text" value="Steel Castings India Ltd" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">PO Number</label>
+              <input type="text" value="PO-2526-0145" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vehicle Number</label>
+              <input type="text" value="KA-01-AB-1234" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono uppercase focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Challan / DC No</label>
+              <input type="text" value="SCIL/DC/2526/0789" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Received By</label>
+              <input type="text" value="Dinesh K (Stores)" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Inspection Status</label>
+              <div class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded">
+                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                <span class="text-sm text-blue-700 font-semibold">Pending Quality Inspection</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRN Items table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+            <h3 class="text-sm font-bold text-[#1e3a5f]">Received Items</h3>
+            <span class="text-xs text-gray-500">3 items received</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-[#1e3a5f] text-white text-xs">
+                  <th class="px-3 py-2.5 text-left w-8">Sr</th>
+                  <th class="px-3 py-2.5 text-left">Item / Description</th>
+                  <th class="px-3 py-2.5 text-left">Grade</th>
+                  <th class="px-3 py-2.5 text-center">PO Qty</th>
+                  <th class="px-3 py-2.5 text-center">Supplied Qty</th>
+                  <th class="px-3 py-2.5 text-center">Accepted Qty</th>
+                  <th class="px-3 py-2.5 text-center">Rejected Qty</th>
+                  <th class="px-3 py-2.5 text-left">Heat No</th>
+                  <th class="px-3 py-2.5 text-left">Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">01</td>
+                  <td class="px-3 py-2.5 font-medium">Gate Valve Body Casting 6"</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-gray-700">WCB</td>
+                  <td class="px-3 py-2.5 text-center font-semibold text-gray-700">10</td>
+                  <td class="px-3 py-2.5 text-center font-semibold text-green-700">10</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="" placeholder="—" class="w-16 text-center border border-dashed border-gray-300 rounded px-2 py-0.5 text-xs bg-blue-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="" placeholder="—" class="w-16 text-center border border-dashed border-gray-300 rounded px-2 py-0.5 text-xs bg-blue-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-amber-700 font-semibold">H-2024-0456</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">Pending QA inspection</td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors bg-gray-50/50">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">02</td>
+                  <td class="px-3 py-2.5 font-medium">Globe Valve Body Casting 2"</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-gray-700">A105</td>
+                  <td class="px-3 py-2.5 text-center font-semibold text-gray-700">8</td>
+                  <td class="px-3 py-2.5 text-center font-semibold text-green-700">8</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="" placeholder="—" class="w-16 text-center border border-dashed border-gray-300 rounded px-2 py-0.5 text-xs bg-blue-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="" placeholder="—" class="w-16 text-center border border-dashed border-gray-300 rounded px-2 py-0.5 text-xs bg-blue-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-amber-700 font-semibold">H-2024-0457</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">Pending QA inspection</td>
+                </tr>
+                <tr class="hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">03</td>
+                  <td class="px-3 py-2.5 font-medium">Stem Bar — SS410 Ø40mm</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-gray-700">SS 410</td>
+                  <td class="px-3 py-2.5 text-center font-semibold text-gray-700">12</td>
+                  <td class="px-3 py-2.5 text-center font-semibold text-amber-600">10</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="" placeholder="—" class="w-16 text-center border border-dashed border-gray-300 rounded px-2 py-0.5 text-xs bg-blue-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="" placeholder="—" class="w-16 text-center border border-dashed border-gray-300 rounded px-2 py-0.5 text-xs bg-blue-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-amber-700 font-semibold">H-2024-0458</td>
+                  <td class="px-3 py-2.5 text-xs text-orange-600 font-medium">Short supply — 2 nos pending</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-5 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-xs text-orange-600 font-medium flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Short supply noted — follow up pending with vendor
+            </div>
+            <button class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm px-5 py-2 rounded transition font-medium shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Submit for Quality Inspection
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: GRN Quality -->
+      <div x-show="activeTab === 'grnqa'" x-cloak class="tab-panel space-y-4">
+
+        <!-- Filter + GRN info -->
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">GRN No</label>
+            <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-white shadow-sm focus:border-sky-400">
+              <option>GRN-2526-0089</option>
+              <option>GRN-2526-0085</option>
+              <option>GRN-2526-0080</option>
+            </select>
+          </div>
+          <button class="flex items-center gap-1.5 bg-[#0ea5e9] hover:bg-sky-500 text-white text-sm px-4 py-1.5 rounded transition font-medium">Load</button>
+        </div>
+
+        <!-- GRN info panel -->
+        <div class="bg-[#f0f9ff] border border-sky-200 rounded-lg px-5 py-3 grid grid-cols-4 gap-4 text-sm">
+          <div><span class="text-xs text-gray-500 block">GRN No</span><span class="font-semibold font-mono text-[#0ea5e9]">GRN-2526-0089</span></div>
+          <div><span class="text-xs text-gray-500 block">Vendor</span><span class="font-semibold">Steel Castings India Ltd</span></div>
+          <div><span class="text-xs text-gray-500 block">GRN Date</span><span class="font-semibold">10-May-2026</span></div>
+          <div><span class="text-xs text-gray-500 block">Items</span><span class="font-semibold">3 types · 28 nos total</span></div>
+        </div>
+
+        <!-- Inspection form details -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <h3 class="text-sm font-bold text-[#1e3a5f] mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Quality Inspection Details
+          </h3>
+          <div class="grid grid-cols-3 gap-x-6 gap-y-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Inspection Report No <span class="text-red-500">*</span></label>
+              <input type="text" value="QA/INS/2526/0234" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 font-mono focus:border-sky-400" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Inspector</label>
+              <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400">
+                <option>Priya R (QA Engineer)</option>
+                <option>Mohan S (QA Inspector)</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Inspection Date</label>
+              <input type="text" value="12-May-2026" class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Inspection results table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-[#1e3a5f]">Inspection Results</h3>
+            <span class="text-xs text-gray-500">3 inspection records</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-[#1e3a5f] text-white text-xs">
+                  <th class="px-3 py-2.5 text-left w-8">Sr</th>
+                  <th class="px-3 py-2.5 text-left">Item</th>
+                  <th class="px-3 py-2.5 text-left">Heat No</th>
+                  <th class="px-3 py-2.5 text-left">Test Method</th>
+                  <th class="px-3 py-2.5 text-left">Parameter</th>
+                  <th class="px-3 py-2.5 text-left">Requirement</th>
+                  <th class="px-3 py-2.5 text-left">Actual</th>
+                  <th class="px-3 py-2.5 text-center">Result</th>
+                  <th class="px-3 py-2.5 text-center">Qty Accepted</th>
+                  <th class="px-3 py-2.5 text-center">Qty Rejected</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">01</td>
+                  <td class="px-3 py-2.5 font-medium text-xs">Body Casting 6" WCB</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-amber-700">H-2024-0456</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-700">Dimensional Check</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-700">Wall Thickness</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-600">Min 12.5 mm</td>
+                  <td class="px-3 py-2.5 text-xs font-semibold text-green-700">13.2 mm</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <select class="border border-gray-300 rounded px-2 py-0.5 text-xs bg-green-50 text-green-700 font-semibold focus:border-sky-400">
+                      <option value="pass" selected>Pass</option>
+                      <option value="fail">Fail</option>
+                    </select>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="10" class="w-12 text-center border border-gray-300 rounded px-1.5 py-0.5 text-xs font-semibold text-green-700 bg-green-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="0" class="w-12 text-center border border-gray-300 rounded px-1.5 py-0.5 text-xs bg-gray-50 focus:border-sky-400" />
+                  </td>
+                </tr>
+                <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors bg-gray-50/50">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">02</td>
+                  <td class="px-3 py-2.5 font-medium text-xs">Body Casting 6" WCB</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-amber-700">H-2024-0456</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-700">Visual Inspection</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-700">Surface Quality</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-600">No porosity / cracks</td>
+                  <td class="px-3 py-2.5 text-xs font-semibold text-green-700">Clear surface</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <select class="border border-gray-300 rounded px-2 py-0.5 text-xs bg-green-50 text-green-700 font-semibold focus:border-sky-400">
+                      <option value="pass" selected>Pass</option>
+                      <option value="fail">Fail</option>
+                    </select>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="10" class="w-12 text-center border border-gray-300 rounded px-1.5 py-0.5 text-xs font-semibold text-green-700 bg-green-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="0" class="w-12 text-center border border-gray-300 rounded px-1.5 py-0.5 text-xs bg-gray-50 focus:border-sky-400" />
+                  </td>
+                </tr>
+                <tr class="hover:bg-sky-50 transition-colors">
+                  <td class="px-3 py-2.5 text-gray-500 font-mono text-xs">03</td>
+                  <td class="px-3 py-2.5 font-medium text-xs">Stem Bar SS410</td>
+                  <td class="px-3 py-2.5 font-mono text-xs text-amber-700">H-2024-0458</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-700">Chemical Composition</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-700">Cr content</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-600">11.5 – 13.5%</td>
+                  <td class="px-3 py-2.5 text-xs font-semibold text-red-600">10.8% — LOW</td>
+                  <td class="px-3 py-2.5 text-center">
+                    <select class="border border-gray-300 rounded px-2 py-0.5 text-xs bg-red-50 text-red-700 font-semibold focus:border-sky-400">
+                      <option value="pass">Pass</option>
+                      <option value="fail" selected>Fail</option>
+                    </select>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="0" class="w-12 text-center border border-gray-300 rounded px-1.5 py-0.5 text-xs bg-gray-50 focus:border-sky-400" />
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <input type="text" value="10" class="w-12 text-center border border-gray-300 rounded px-1.5 py-0.5 text-xs font-semibold text-red-600 bg-red-50 focus:border-sky-400" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Rejection alert -->
+          <div class="mx-5 my-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center gap-3 text-sm text-red-700">
+            <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span><strong>Rejection Alert:</strong> Stem Bar (Heat H-2024-0458) failed chemical composition test. Cr content 10.8% is below minimum spec 11.5%. Rejection note will be issued to vendor.</span>
+          </div>
+          <div class="px-5 pb-4 flex items-center gap-3">
+            <button class="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-5 py-2 rounded transition font-medium shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Accept GRN
+            </button>
+            <button class="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-sm px-5 py-2 rounded transition font-medium shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+              Reject GRN
+            </button>
+            <button class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-sm px-5 py-2 rounded transition font-medium shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Partial Accept
+            </button>
+            <div class="ml-auto">
+              <span class="px-3 py-1.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200">Partial Acceptance — 18 of 28 nos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: Vendor Rating -->
+      <div x-show="activeTab === 'vendorrating'" x-cloak class="tab-panel space-y-4">
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Year</label>
+            <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400">
+              <option>2025-26</option>
+              <option>2024-25</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Quarter</label>
+            <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400">
+              <option>All Quarters</option>
+              <option>Q1 (Apr-Jun)</option>
+              <option>Q2 (Jul-Sep)</option>
+              <option>Q3 (Oct-Dec)</option>
+              <option>Q4 (Jan-Mar)</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vendor</label>
+            <select class="border border-gray-300 rounded px-3 py-1.5 text-sm bg-gray-50 focus:border-sky-400 min-w-48">
+              <option>All Vendors</option>
+              <option>Steel Castings India Ltd</option>
+              <option>Stainless Forgings Co</option>
+            </select>
+          </div>
+          <button class="flex items-center gap-1.5 bg-[#0ea5e9] hover:bg-sky-500 text-white text-sm px-4 py-1.5 rounded transition font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            Apply Filter
+          </button>
+        </div>
+
+        <!-- Summary rating cards -->
+        <div class="grid grid-cols-4 gap-4">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col items-center gap-2">
+            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="text-2xl font-bold text-green-600">87%</div>
+            <div class="text-xs font-semibold text-gray-600 text-center">On-Time Delivery</div>
+            <div class="text-xs text-gray-400">Avg. across all vendors</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col items-center gap-2">
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="text-2xl font-bold text-blue-600">92%</div>
+            <div class="text-xs font-semibold text-gray-600 text-center">Quality Rating</div>
+            <div class="text-xs text-gray-400">Accepted vs total GRNs</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col items-center gap-2">
+            <div class="w-12 h-12 rounded-full bg-sky-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+            <div class="text-2xl font-bold text-sky-600">95%</div>
+            <div class="text-xs font-semibold text-gray-600 text-center">Qty Accuracy</div>
+            <div class="text-xs text-gray-400">Supplied vs PO qty</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col items-center gap-2 border-l-4 border-l-[#0ea5e9]">
+            <div class="w-12 h-12 rounded-full bg-[#0ea5e9]/10 flex items-center justify-center">
+              <svg class="w-6 h-6 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            </div>
+            <div class="text-2xl font-bold text-[#0ea5e9]">91%</div>
+            <div class="text-xs font-semibold text-gray-600 text-center">Overall Rating</div>
+            <div class="text-xs text-gray-400">Weighted composite score</div>
+          </div>
+        </div>
+
+        <!-- Vendor rating table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-[#1e3a5f]">Vendor Performance Ratings — FY 2025-26</h3>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500 inline-block"></span> Grade A (≥90%)</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span> Grade B (75–89%)</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span> Grade C (&lt;75%)</span>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-[#1e3a5f] text-white text-xs">
+                  <th class="px-4 py-2.5 text-left">Vendor Name</th>
+                  <th class="px-4 py-2.5 text-center">Total GRNs</th>
+                  <th class="px-4 py-2.5 text-center">On-Time %</th>
+                  <th class="px-4 py-2.5 text-center">Quality Score</th>
+                  <th class="px-4 py-2.5 text-center">Qty Score</th>
+                  <th class="px-4 py-2.5 text-center">Overall Rating</th>
+                  <th class="px-4 py-2.5 text-center">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="v in vendors" :key="v.name">
+                  <tr class="border-b border-gray-100 hover:bg-sky-50 transition-colors"
+                    :class="{
+                      'bg-red-50/40': v.grade === 'C',
+                      'bg-gray-50/50': v.idx % 2 === 0 && v.grade !== 'C'
+                    }">
+                    <td class="px-4 py-2.5 font-medium" x-text="v.name"></td>
+                    <td class="px-4 py-2.5 text-center font-semibold text-gray-700" x-text="v.grns"></td>
+                    <td class="px-4 py-2.5 text-center">
+                      <span class="font-semibold" :class="v.ontime >= 90 ? 'text-green-700' : (v.ontime >= 75 ? 'text-blue-600' : 'text-red-600')" x-text="v.ontime + '%'"></span>
+                    </td>
+                    <td class="px-4 py-2.5 text-center">
+                      <span class="font-semibold" :class="v.quality >= 90 ? 'text-green-700' : (v.quality >= 75 ? 'text-blue-600' : 'text-red-600')" x-text="v.quality + '%'"></span>
+                    </td>
+                    <td class="px-4 py-2.5 text-center">
+                      <span class="font-semibold" :class="v.qty >= 90 ? 'text-green-700' : (v.qty >= 75 ? 'text-blue-600' : 'text-red-600')" x-text="v.qty + '%'"></span>
+                    </td>
+                    <td class="px-4 py-2.5 text-center">
+                      <div class="flex items-center justify-center gap-2">
+                        <div class="w-24 bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div class="h-2 rounded-full"
+                            :class="v.overall >= 90 ? 'bg-green-500' : (v.overall >= 75 ? 'bg-blue-500' : 'bg-red-400')"
+                            :style="'width:' + v.overall + '%'">
+                          </div>
+                        </div>
+                        <span class="font-bold text-xs" :class="v.overall >= 90 ? 'text-green-700' : (v.overall >= 75 ? 'text-blue-600' : 'text-red-600')" x-text="v.overall + '%'"></span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-2.5 text-center">
+                      <span class="w-8 h-8 inline-flex items-center justify-center rounded-full text-sm font-bold shadow-sm"
+                        :class="{
+                          'bg-green-100 text-green-700 border border-green-300': v.grade === 'A',
+                          'bg-blue-100 text-blue-700 border border-blue-300': v.grade === 'B',
+                          'bg-red-100 text-red-700 border border-red-300': v.grade === 'C'
+                        }"
+                        x-text="v.grade">
+                      </span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-5 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
+            <span>8 vendors rated · FY 2025-26 · Q1 to Q1</span>
+            <button class="text-[#0ea5e9] hover:underline font-medium">Export Report</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function purchaseApp() {
+      return {
+        activeTab: 'indent',
+        tabs: [
+          { id: 'indent', label: 'Indent' },
+          { id: 'po', label: 'Purchase Order' },
+          { id: 'grn', label: 'GRN Entry' },
+          { id: 'grnqa', label: 'GRN Quality' },
+          { id: 'vendorrating', label: 'Vendor Rating' },
+        ],
+        vendors: [
+          { idx: 1, name: 'Steel Castings India Ltd', grns: 24, ontime: 91, quality: 94, qty: 98, overall: 94, grade: 'A' },
+          { idx: 2, name: 'Stainless Forgings Co', grns: 18, ontime: 88, quality: 91, qty: 95, overall: 91, grade: 'A' },
+          { idx: 3, name: 'Precision Engineering Works', grns: 15, ontime: 85, quality: 89, qty: 92, overall: 88, grade: 'B' },
+          { idx: 4, name: 'Allied Metals Pvt Ltd', grns: 22, ontime: 78, quality: 85, qty: 90, overall: 84, grade: 'B' },
+          { idx: 5, name: 'National Casting Corp', grns: 12, ontime: 82, quality: 80, qty: 88, overall: 83, grade: 'B' },
+          { idx: 6, name: 'Rajendra Steel Traders', grns: 8, ontime: 92, quality: 96, qty: 99, overall: 96, grade: 'A' },
+          { idx: 7, name: 'Southern Foundry Ltd', grns: 10, ontime: 65, quality: 72, qty: 80, overall: 71, grade: 'C' },
+          { idx: 8, name: 'Bharat Alloy Suppliers', grns: 7, ontime: 70, quality: 68, qty: 75, overall: 70, grade: 'C' },
+        ]
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Master Data Management — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-slate-100 text-sm font-sans"
+  x-data="mastersApp()">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 bg-[#1e3a5f] flex items-center px-4 z-50 shadow-md">
+    <span class="text-white font-bold text-base mr-2">⚙</span>
+    <a href="dashboard.html" class="text-white font-bold text-base hover:text-sky-300">MSSHPL ERP</a>
+    <span class="text-slate-300 text-xs ml-2">| Veeyes Engineering</span>
+    <div class="ml-auto flex items-center gap-3 text-white text-xs">
+      <div class="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center font-bold text-xs">SA</div>
+      <span>Sujatha Admin</span>
+      <a href="index.html" class="bg-slate-600 hover:bg-slate-500 px-2 py-1 rounded text-xs transition-colors">Logout</a>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-12 bottom-0 w-52 bg-[#1a3050] overflow-y-auto z-40 shadow-lg">
+    <div class="p-3 text-slate-400 text-xs uppercase tracking-wider font-semibold border-b border-slate-700">Modules</div>
+    <nav class="flex flex-col py-1">
+      <a href="dashboard.html" class="text-white bg-[#0f2840] hover:bg-slate-700 flex items-center gap-2 px-3 py-2.5 text-sm font-medium border-b border-slate-700/50">🏠 Home / Dashboard</a>
+      <a href="module-1-admin.html"      class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🔐 Admin &amp; Access</a>
+      <a href="module-2-masters.html"    class="bg-[#0ea5e9] text-white flex items-center gap-2 px-3 py-2.5 text-sm font-medium">📋 Master Data</a>
+      <a href="module-3-sales.html"      class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📦 Sales &amp; Orders</a>
+      <a href="module-4-purchase.html"   class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🛒 Purchase</a>
+      <a href="module-5-production.html" class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">⚙️ Production</a>
+      <a href="module-6-quality.html"    class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">✅ Quality</a>
+      <a href="module-7-dispatch.html"   class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🚚 Dispatch &amp; Invoicing</a>
+      <a href="module-8-subcontract.html" class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🔧 Subcontract</a>
+      <a href="module-9-inventory.html"  class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📊 Inventory &amp; Stock</a>
+      <a href="module-10-mis.html"       class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📈 MIS &amp; Reports</a>
+    </nav>
+    <div class="p-3 mt-4 border-t border-slate-700">
+      <div class="text-slate-500 text-xs">v2.4.1 — Build 2026</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 p-5 min-h-screen bg-slate-100">
+
+    <!-- Module Title Bar -->
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h1 class="text-xl font-bold text-[#1e3a5f]">📋 Master Data Management</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Customers, Suppliers, Materials, Drawings &amp; Machine Registry</p>
+      </div>
+      <span class="text-xs text-slate-400 bg-white px-3 py-1.5 rounded shadow-sm border border-slate-200">MSSHPL ERP | Masters Module</span>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="flex gap-1 mb-5 border-b border-slate-200 flex-wrap">
+      <button @click="activeTab='customer'"  :class="activeTab==='customer'  ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-4 py-2 rounded-t text-sm font-medium transition-colors">🏭 Customer</button>
+      <button @click="activeTab='supplier'"  :class="activeTab==='supplier'  ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-4 py-2 rounded-t text-sm font-medium transition-colors">🏪 Supplier</button>
+      <button @click="activeTab='grade'"     :class="activeTab==='grade'     ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-4 py-2 rounded-t text-sm font-medium transition-colors">🔩 Material Grade</button>
+      <button @click="activeTab='drawing'"   :class="activeTab==='drawing'   ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-4 py-2 rounded-t text-sm font-medium transition-colors">📐 Drawing</button>
+      <button @click="activeTab='valvecode'" :class="activeTab==='valvecode' ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-4 py-2 rounded-t text-sm font-medium transition-colors">🏷 Valve Code</button>
+      <button @click="activeTab='machine'"   :class="activeTab==='machine'   ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-4 py-2 rounded-t text-sm font-medium transition-colors">⚙️ Machine</button>
+    </div>
+
+    <!-- ===================== TAB 1: CUSTOMER ===================== -->
+    <div x-show="activeTab==='customer'" x-transition>
+
+      <!-- Top bar -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input x-model="customerSearch" type="text" placeholder="Search customers..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 w-64">
+        </div>
+        <button @click="selectedCustomer=null; customerSlideOver=true" class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Customer
+        </button>
+      </div>
+
+      <!-- Customer Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Customer Code</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Customer Name</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Type</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">City</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">GST No.</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Status</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="cust in customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()) || c.code.toLowerCase().includes(customerSearch.toLowerCase()))" :key="cust.code">
+              <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs font-medium text-sky-700" x-text="cust.code"></td>
+                <td class="px-4 py-3 font-medium text-slate-800" x-html="cust.name"></td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                    :class="cust.type==='Export' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
+                    x-text="cust.type"></span>
+                </td>
+                <td class="px-4 py-3 text-slate-600" x-text="cust.city"></td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="cust.gst"></td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+                    Active
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <button @click="selectedCustomer=cust; customerSlideOver=true"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-sky-200 text-sky-600 hover:bg-sky-50 bg-white transition-colors mr-1">
+                    Edit
+                  </button>
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 bg-white transition-colors">View</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500">
+          <span x-text="customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()) || c.code.toLowerCase().includes(customerSearch.toLowerCase())).length"></span> of <span x-text="customers.length"></span> customers
+        </div>
+      </div>
+
+      <!-- Customer Slide-Over Panel -->
+      <div x-show="customerSlideOver" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-8"
+        class="fixed right-0 top-12 bottom-0 w-96 bg-white shadow-2xl z-50 overflow-y-auto border-l border-slate-200">
+        <div class="sticky top-0 bg-[#1e3a5f] px-5 py-4 flex items-center justify-between">
+          <div>
+            <h3 class="text-white font-semibold text-sm" x-text="selectedCustomer ? 'Edit Customer' : 'New Customer'"></h3>
+            <p class="text-sky-200 text-xs mt-0.5" x-text="selectedCustomer ? selectedCustomer.code : 'Fill in details below'"></p>
+          </div>
+          <button @click="customerSlideOver=false" class="text-slate-300 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div class="p-5 space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Customer Code <span class="text-red-500">*</span></label>
+              <input type="text" :value="selectedCustomer ? selectedCustomer.code : ''" placeholder="e.g. BHEL-001" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Customer Type</label>
+              <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option :selected="selectedCustomer && selectedCustomer.type==='Domestic'">Domestic</option>
+                <option :selected="selectedCustomer && selectedCustomer.type==='Export'">Export</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Customer Name <span class="text-red-500">*</span></label>
+            <input type="text" :value="selectedCustomer ? selectedCustomer.name : ''" placeholder="Full legal name" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 1</label>
+            <input type="text" placeholder="Building / Plot No." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 2</label>
+            <input type="text" placeholder="Street / Area" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 3</label>
+            <input type="text" placeholder="Locality / Landmark" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">City</label>
+              <input type="text" :value="selectedCustomer ? selectedCustomer.city : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">State</label>
+              <input type="text" placeholder="State" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">PIN</label>
+              <input type="text" placeholder="600001" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Contact Details</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Contact Person</label>
+                <input type="text" placeholder="Name" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Phone</label>
+                <input type="text" placeholder="+91 98765 43210" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Email</label>
+              <input type="email" placeholder="procurement@company.com" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tax &amp; Banking</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">GST No.</label>
+                <input type="text" :value="selectedCustomer ? selectedCustomer.gst : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bank Account</label>
+                <input type="text" placeholder="Account Number" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">MICR Code</label>
+              <input type="text" placeholder="9-digit MICR" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button class="flex-1 bg-[#0ea5e9] hover:bg-sky-600 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">Save Customer</button>
+            <button @click="customerSlideOver=false" class="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm transition-colors">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <!-- Backdrop -->
+      <div x-show="customerSlideOver" @click="customerSlideOver=false" class="fixed inset-0 bg-black/20 z-40" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+    </div>
+
+    <!-- ===================== TAB 2: SUPPLIER ===================== -->
+    <div x-show="activeTab==='supplier'" x-transition>
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input x-model="supplierSearch" type="text" placeholder="Search suppliers..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 w-64">
+        </div>
+        <button @click="selectedSupplier=null; supplierSlideOver=true" class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Supplier
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Supplier Code</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Name</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">City</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">GST No.</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Approved</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Rating</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="sup in suppliers.filter(s => s.name.toLowerCase().includes(supplierSearch.toLowerCase()) || s.code.toLowerCase().includes(supplierSearch.toLowerCase()))" :key="sup.code">
+              <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs font-medium text-orange-700" x-text="sup.code"></td>
+                <td class="px-4 py-3 font-medium text-slate-800" x-text="sup.name"></td>
+                <td class="px-4 py-3 text-slate-600" x-text="sup.city"></td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="sup.gst"></td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                    :class="sup.approved==='Yes' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
+                    x-text="sup.approved"></span>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-1 rounded text-xs font-bold"
+                    :class="{
+                      'bg-green-100 text-green-700': sup.rating==='A+' || sup.rating==='A',
+                      'bg-blue-100 text-blue-700': sup.rating==='B+' || sup.rating==='B',
+                      'bg-slate-100 text-slate-500': sup.rating==='—'
+                    }"
+                    x-text="sup.rating"></span>
+                </td>
+                <td class="px-4 py-3">
+                  <button @click="selectedSupplier=sup; supplierSlideOver=true"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-sky-200 text-sky-600 hover:bg-sky-50 bg-white transition-colors mr-1">
+                    Edit
+                  </button>
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 bg-white transition-colors">View</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500">
+          <span x-text="suppliers.filter(s => s.name.toLowerCase().includes(supplierSearch.toLowerCase()) || s.code.toLowerCase().includes(supplierSearch.toLowerCase())).length"></span> of <span x-text="suppliers.length"></span> suppliers
+        </div>
+      </div>
+
+      <!-- Supplier Slide-Over Panel -->
+      <div x-show="supplierSlideOver" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-8"
+        class="fixed right-0 top-12 bottom-0 w-96 bg-white shadow-2xl z-50 overflow-y-auto border-l border-slate-200">
+        <div class="sticky top-0 bg-[#1e3a5f] px-5 py-4 flex items-center justify-between">
+          <div>
+            <h3 class="text-white font-semibold text-sm" x-text="selectedSupplier ? 'Edit Supplier' : 'New Supplier'"></h3>
+            <p class="text-sky-200 text-xs mt-0.5" x-text="selectedSupplier ? selectedSupplier.code : 'Fill in details below'"></p>
+          </div>
+          <button @click="supplierSlideOver=false" class="text-slate-300 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div class="p-5 space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Supplier Code <span class="text-red-500">*</span></label>
+              <input type="text" :value="selectedSupplier ? selectedSupplier.code : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Vendor Type</label>
+              <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option>Foundry</option>
+                <option>Forging</option>
+                <option>Castings</option>
+                <option>Fasteners</option>
+                <option>Raw Material</option>
+                <option>Services</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Supplier Name <span class="text-red-500">*</span></label>
+            <input type="text" :value="selectedSupplier ? selectedSupplier.name : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Address</label>
+            <textarea rows="2" placeholder="Full address" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 resize-none"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">City</label>
+              <input type="text" :value="selectedSupplier ? selectedSupplier.city : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">PIN Code</label>
+              <input type="text" placeholder="560001" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">GST No.</label>
+              <input type="text" :value="selectedSupplier ? selectedSupplier.gst : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">PAN No.</label>
+              <input type="text" placeholder="ABCDE1234F" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Contact Person</label>
+              <input type="text" placeholder="Name" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Phone</label>
+              <input type="text" placeholder="+91 98765 43210" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Approval Status</label>
+              <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option :selected="selectedSupplier && selectedSupplier.approved==='Yes'">Yes</option>
+                <option :selected="selectedSupplier && selectedSupplier.approved==='Pending'">Pending</option>
+                <option>No</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Rating</label>
+              <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option>A+</option><option>A</option><option>B+</option><option>B</option><option>C</option><option>—</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button class="flex-1 bg-[#0ea5e9] hover:bg-sky-600 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">Save Supplier</button>
+            <button @click="supplierSlideOver=false" class="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm transition-colors">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div x-show="supplierSlideOver" @click="supplierSlideOver=false" class="fixed inset-0 bg-black/20 z-40" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
+    </div>
+
+    <!-- ===================== TAB 3: MATERIAL GRADE ===================== -->
+    <div x-show="activeTab==='grade'" x-transition>
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Search grades..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 w-64">
+        </div>
+        <button @click="gradeModal=true; selectedGrade=null" class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Grade
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Grade Code</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Grade Name</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">ASTM Standard</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Heat Treatment</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">HSN Code</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="g in grades" :key="g.code">
+              <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 font-mono font-bold text-sky-700 text-xs" x-text="g.code"></td>
+                <td class="px-4 py-3 font-medium text-slate-800" x-text="g.name"></td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="g.astm"></td>
+                <td class="px-4 py-3 text-slate-600" x-text="g.ht"></td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="g.hsn"></td>
+                <td class="px-4 py-3">
+                  <button @click="selectedGrade=g; gradeModal=true" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-sky-200 text-sky-600 hover:bg-sky-50 bg-white transition-colors mr-1">Edit</button>
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-red-200 text-red-600 hover:bg-red-50 bg-white transition-colors">Delete</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Grade Modal -->
+      <div x-show="gradeModal" class="fixed inset-0 z-50 flex items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+        <div @click="gradeModal=false" class="absolute inset-0 bg-black/40"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+          <div class="bg-[#1e3a5f] px-6 py-4 flex items-center justify-between">
+            <h3 class="text-white font-semibold" x-text="selectedGrade ? 'Edit Material Grade' : 'New Material Grade'"></h3>
+            <button @click="gradeModal=false" class="text-slate-300 hover:text-white text-2xl leading-none">&times;</button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Grade Code <span class="text-red-500">*</span></label>
+                <input type="text" :value="selectedGrade ? selectedGrade.code : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">HSN Code</label>
+                <input type="text" :value="selectedGrade ? selectedGrade.hsn : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Grade Name <span class="text-red-500">*</span></label>
+              <input type="text" :value="selectedGrade ? selectedGrade.name : ''" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">ASTM Standard</label>
+              <input type="text" :value="selectedGrade ? selectedGrade.astm : ''" placeholder="e.g. ASTM A105" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Heat Treatment</label>
+              <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option>Normalized</option>
+                <option>Annealed</option>
+                <option>Solution Anneal</option>
+                <option>Quenched &amp; Tempered</option>
+                <option>None</option>
+              </select>
+            </div>
+            <div class="flex gap-3 pt-1">
+              <button class="flex-1 bg-[#0ea5e9] hover:bg-sky-600 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">Save Grade</button>
+              <button @click="gradeModal=false" class="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm transition-colors">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 4: DRAWING ===================== -->
+    <div x-show="activeTab==='drawing'" x-transition>
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Search drawings..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 w-64">
+          </div>
+          <select class="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+            <option>All Types</option>
+            <option>GA Drawing</option>
+            <option>Component</option>
+            <option>Assembly</option>
+          </select>
+        </div>
+        <button @click="drawingModal=true" class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Upload Drawing
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Drawing Code</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Drawing Title</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Type</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Revision</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Status</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Approved By</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Date</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="d in drawings" :key="d.code">
+              <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs font-medium text-sky-700" x-text="d.code"></td>
+                <td class="px-4 py-3 font-medium text-slate-800" x-text="d.title"></td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-1 rounded text-xs font-semibold"
+                    :class="{
+                      'bg-indigo-100 text-indigo-700': d.type==='G',
+                      'bg-teal-100 text-teal-700': d.type==='C',
+                      'bg-purple-100 text-purple-700': d.type==='A'
+                    }"
+                    x-text="d.type==='G' ? 'GA Drawing' : d.type==='C' ? 'Component' : 'Assembly'"></span>
+                </td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="d.rev"></td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                    :class="{
+                      'bg-green-100 text-green-700': d.status==='Approved',
+                      'bg-amber-100 text-amber-700': d.status==='Under Review',
+                      'bg-slate-100 text-slate-500': d.status==='Draft'
+                    }"
+                    x-text="d.status"></span>
+                </td>
+                <td class="px-4 py-3 text-xs text-slate-600" x-text="d.approval"></td>
+                <td class="px-4 py-3 text-xs text-slate-500" x-text="d.date"></td>
+                <td class="px-4 py-3">
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-sky-200 text-sky-600 hover:bg-sky-50 bg-white transition-colors mr-1">Edit</button>
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 bg-white transition-colors">↓ PDF</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 flex justify-between items-center">
+          <span>8 drawings on record</span>
+          <div class="flex gap-3 text-xs">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> 5 Approved</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> 2 Under Review</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span> 1 Draft</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 5: VALVE CODE GENERATOR ===================== -->
+    <div x-show="activeTab==='valvecode'" x-transition>
+
+      <div class="grid grid-cols-5 gap-5">
+
+        <!-- Generator Panel -->
+        <div class="col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+            <h3 class="font-semibold text-slate-800 text-sm">🏷 Valve Code Generator</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Auto-generate standard valve codes from parameters</p>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Valve Type</label>
+              <select x-model="valveType" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option value="GV">GV — Gate Valve</option>
+                <option value="GLV">GLV — Globe Valve</option>
+                <option value="BFV">BFV — Butterfly Valve</option>
+                <option value="BV">BV — Ball Valve</option>
+                <option value="CV">CV — Check Valve</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Size (inches)</label>
+              <select x-model="valveSize" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option value="1/2">1/2"</option>
+                <option value="3/4">3/4"</option>
+                <option value="1">1"</option>
+                <option value="1.5">1.5"</option>
+                <option value="2">2"</option>
+                <option value="3">3"</option>
+                <option value="4">4"</option>
+                <option value="6" selected>6"</option>
+                <option value="8">8"</option>
+                <option value="10">10"</option>
+                <option value="12">12"</option>
+                <option value="16">16"</option>
+                <option value="20">20"</option>
+                <option value="24">24"</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Pressure Class</label>
+              <select x-model="valvePressure" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option value="150">150#</option>
+                <option value="300">300#</option>
+                <option value="600">600#</option>
+                <option value="900">900#</option>
+                <option value="1500">1500#</option>
+                <option value="2500">2500#</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Material</label>
+              <select x-model="valveMaterial" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option value="WCB">WCB — Cast Carbon Steel</option>
+                <option value="CF8M">CF8M — Cast SS 316</option>
+                <option value="A105">A105 — Forged Carbon Steel</option>
+                <option value="A182F11">A182F11 — Alloy Steel Gr F11</option>
+                <option value="A182F22">A182F22 — Alloy Steel Gr F22</option>
+                <option value="A350LF2">A350LF2 — Low Temp CS</option>
+                <option value="SS316">SS316 — Stainless 316</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">End Connection</label>
+              <select x-model="valveEndConn" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <option value="RF">RF — Raised Face</option>
+                <option value="FF">FF — Flat Face</option>
+                <option value="BW">BW — Butt Weld</option>
+                <option value="SW">SW — Socket Weld</option>
+                <option value="THD">THD — Threaded</option>
+              </select>
+            </div>
+
+            <!-- Preview box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+              <p class="text-xs text-slate-500 mb-2">Generated Code Preview</p>
+              <div class="font-mono text-xl font-bold text-[#1e3a5f]" x-text="generatedCode || (valveType+'-'+valveSize+'-'+valvePressure+'-'+valveMaterial+'-'+valveEndConn)"></div>
+              <p class="text-xs text-slate-400 mt-2">[Type]-[Size]-[Class]-[Material]-[End Conn]</p>
+            </div>
+
+            <button @click="generatedCode = valveType+'-'+valveSize+'-'+valvePressure+'-'+valveMaterial+'-'+valveEndConn; recentCodes.unshift({ code: generatedCode, date: '26 May 2026', user: 'Sujatha Admin' }); if(recentCodes.length>10) recentCodes.pop()"
+              class="w-full bg-[#0ea5e9] hover:bg-sky-600 text-white py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-colors flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Generate Code
+            </button>
+
+            <div x-show="generatedCode" x-transition class="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+              <p class="text-xs text-green-700 font-medium">Code generated and added to registry</p>
+              <p class="font-mono text-sm font-bold text-green-800 mt-1" x-text="generatedCode"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Codes Table -->
+        <div class="col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold text-slate-800 text-sm">Recent Generated Codes</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Last 10 valve codes generated</p>
+            </div>
+            <button class="text-xs text-sky-600 hover:text-sky-700 font-medium">Export CSV</button>
+          </div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200">
+                <th class="text-left px-4 py-3 text-slate-600 font-semibold">#</th>
+                <th class="text-left px-4 py-3 text-slate-600 font-semibold">Valve Code</th>
+                <th class="text-left px-4 py-3 text-slate-600 font-semibold">Date</th>
+                <th class="text-left px-4 py-3 text-slate-600 font-semibold">Generated By</th>
+                <th class="text-left px-4 py-3 text-slate-600 font-semibold">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(rc, idx) in recentCodes" :key="idx">
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors" :class="idx===0 && generatedCode ? 'bg-green-50' : ''">
+                  <td class="px-4 py-3 text-slate-400 text-xs" x-text="idx+1"></td>
+                  <td class="px-4 py-3 font-mono font-bold text-[#1e3a5f] text-sm" x-text="rc.code"></td>
+                  <td class="px-4 py-3 text-xs text-slate-500" x-text="rc.date"></td>
+                  <td class="px-4 py-3 text-xs text-slate-600" x-text="rc.user"></td>
+                  <td class="px-4 py-3">
+                    <button class="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 bg-white transition-colors">Copy</button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 6: MACHINE ===================== -->
+    <div x-show="activeTab==='machine'" x-transition>
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Search machines..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 w-64">
+        </div>
+        <button class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Machine
+        </button>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-4 gap-4 mb-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-lg">⚙️</div>
+          <div><div class="text-xs text-slate-500">Total Machines</div><div class="text-xl font-bold text-[#1e3a5f]">8</div></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-lg">✅</div>
+          <div><div class="text-xs text-slate-500">Active</div><div class="text-xl font-bold text-green-600">7</div></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-lg">🔧</div>
+          <div><div class="text-xs text-slate-500">In Maintenance</div><div class="text-xl font-bold text-amber-600">1</div></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-lg">🏭</div>
+          <div><div class="text-xs text-slate-500">Departments</div><div class="text-xl font-bold text-purple-600">4</div></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Machine Code</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Machine Name</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Department</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Capacity</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Status</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="m in machines" :key="m.code">
+              <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 font-mono text-xs font-bold text-sky-700" x-text="m.code"></td>
+                <td class="px-4 py-3 font-medium text-slate-800" x-text="m.name"></td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-1 rounded text-xs font-semibold"
+                    :class="{
+                      'bg-blue-100 text-blue-700': m.dept==='Machining',
+                      'bg-orange-100 text-orange-700': m.dept==='Testing',
+                      'bg-purple-100 text-purple-700': m.dept==='Finishing',
+                      'bg-teal-100 text-teal-700': m.dept==='Fabrication'
+                    }"
+                    x-text="m.dept"></span>
+                </td>
+                <td class="px-4 py-3 text-xs text-slate-600 font-mono" x-text="m.capacity"></td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                    :class="m.status==='Active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                    <span class="w-1.5 h-1.5 rounded-full inline-block" :class="m.status==='Active' ? 'bg-green-500' : 'bg-amber-500'"></span>
+                    <span x-text="m.status"></span>
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-sky-200 text-sky-600 hover:bg-sky-50 bg-white transition-colors mr-1">Edit</button>
+                  <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 bg-white transition-colors">History</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500">
+          8 machines registered | Last updated: 26 May 2026
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('mastersApp', () => ({
+    activeTab: 'customer',
+    customerSlideOver: false,
+    supplierSlideOver: false,
+    gradeModal: false,
+    drawingModal: false,
+    selectedCustomer: null,
+    selectedSupplier: null,
+    selectedGrade: null,
+    customerSearch: '',
+    supplierSearch: '',
+    valveType: 'GV',
+    valveSize: '6',
+    valvePressure: '150',
+    valveMaterial: 'WCB',
+    valveEndConn: 'RF',
+    generatedCode: '',
+    recentCodes: [
+      { code: 'GV-6-150-WCB-RF',    date: '26 May 2026', user: 'Ravi Kumar'  },
+      { code: 'GLV-4-300-CF8M-BW',  date: '26 May 2026', user: 'Ravi Kumar'  },
+      { code: 'BFV-12-150-WCB-FF',  date: '25 May 2026', user: 'Meena Devi'  },
+      { code: 'BV-2-600-A105-SW',   date: '25 May 2026', user: 'Ravi Kumar'  },
+      { code: 'CV-3-900-A182F11-BW',date: '24 May 2026', user: 'Sujatha Admin'},
+      { code: 'GV-8-150-WCB-RF',    date: '24 May 2026', user: 'Ravi Kumar'  },
+      { code: 'GLV-2-300-SS316-RF', date: '23 May 2026', user: 'Meena Devi'  },
+      { code: 'BFV-16-150-WCB-FF',  date: '23 May 2026', user: 'Ravi Kumar'  },
+      { code: 'GV-10-150-CF8M-RF',  date: '22 May 2026', user: 'Ravi Kumar'  },
+      { code: 'BV-1-1500-A105-SW',  date: '22 May 2026', user: 'Sujatha Admin'}
+    ],
+    customers: [
+      { code:'BHEL-001', name:'BHEL Limited',              type:'Domestic', city:'New Delhi',    gst:'07AAACB1234F1Z0', status:'Active'   },
+      { code:'NTPC-001', name:'NTPC Ltd',                  type:'Domestic', city:'Noida',        gst:'09AAACN5678G1Z2', status:'Active'   },
+      { code:'IOCL-001', name:'Indian Oil Corporation',    type:'Domestic', city:'Mumbai',       gst:'27AAACI9012H1Z4', status:'Active'   },
+      { code:'ONGC-001', name:'ONGC Ltd',                  type:'Domestic', city:'Dehradun',     gst:'05AAACO3456I1Z6', status:'Active'   },
+      { code:'LNT-001',  name:'Larsen &amp; Toubro Ltd',  type:'Domestic', city:'Mumbai',       gst:'27AAACL7890J1Z8', status:'Active'   },
+      { code:'RIL-001',  name:'Reliance Industries',       type:'Domestic', city:'Navi Mumbai',  gst:'27AAACR2345K1ZA', status:'Active'   },
+      { code:'TMX-001',  name:'Thermax Limited',           type:'Domestic', city:'Pune',         gst:'27AAACT6789L1ZC', status:'Active'   },
+      { code:'TVN-001',  name:'Triveni Turbines Ltd',      type:'Export',   city:'Bangalore',    gst:'29AAACT1234M1ZE', status:'Active'   }
+    ],
+    suppliers: [
+      { code:'SUP-001', name:'Bharat Forge Ltd',         city:'Pune',          gst:'27AAACB4567N1Z0', approved:'Yes', rating:'A+'  },
+      { code:'SUP-002', name:'Tata Steel Ltd',           city:'Jamshedpur',    gst:'20AAACT8901O1Z2', approved:'Yes', rating:'A'   },
+      { code:'SUP-003', name:'Mahindra Castings',        city:'Nasik',         gst:'27AAACM2345P1Z4', approved:'Yes', rating:'A'   },
+      { code:'SUP-004', name:'Precision Fasteners Ltd',  city:'Bangalore',     gst:'29AAACP6789Q1Z6', approved:'Yes', rating:'B+'  },
+      { code:'SUP-005', name:'Stainless India Pvt Ltd',  city:'Mumbai',        gst:'27AAACS0123R1Z8', approved:'Yes', rating:'B'   },
+      { code:'SUP-006', name:'Rashmi Metaliks',          city:'Kolkata',       gst:'19AAACR4567S1ZA', approved:'Pending', rating:'—' },
+      { code:'SUP-007', name:'Allied Castings Pvt Ltd',  city:'Coimbatore',    gst:'33AAACA8901T1ZC', approved:'Yes', rating:'A'   },
+      { code:'SUP-008', name:'Indo German Tools Ltd',    city:'Pune',          gst:'27AAACI2345U1ZE', approved:'Yes', rating:'B+'  }
+    ],
+    grades: [
+      { code:'CS',       name:'Carbon Steel',               astm:'ASTM A105',           ht:'Normalized',      hsn:'73079990' },
+      { code:'SS316',    name:'Stainless Steel 316',         astm:'ASTM A182 F316',      ht:'Solution Anneal', hsn:'73079910' },
+      { code:'A182F11',  name:'Alloy Steel Gr F11',          astm:'ASTM A182 F11',       ht:'Annealed',        hsn:'73079990' },
+      { code:'A350LF2',  name:'Low Temp Carbon Steel LF2',   astm:'ASTM A350 LF2',       ht:'Normalized',      hsn:'73079990' },
+      { code:'WCB',      name:'Cast Carbon Steel WCB',       astm:'ASTM A216 WCB',       ht:'Normalized',      hsn:'73061990' },
+      { code:'CF8M',     name:'Cast SS 316 CF8M',            astm:'ASTM A351 CF8M',      ht:'Solution Anneal', hsn:'73069990' },
+      { code:'LCB',      name:'Low Temp Cast Steel LCB',     astm:'ASTM A352 LCB',       ht:'Normalized',      hsn:'73069990' },
+      { code:'A182F22',  name:'Alloy Steel Gr F22',          astm:'ASTM A182 F22',       ht:'Annealed',        hsn:'73079990' }
+    ],
+    drawings: [
+      { code:'VE-6-150-GV-GA',  title:'Gate Valve 6" 150# GA',      type:'G', rev:'Rev 3', status:'Approved',     approval:'Sujatha Admin', date:'10 Apr 2026' },
+      { code:'VE-GV-BODY-C1',   title:'GV Body Component Dwg',       type:'C', rev:'Rev 2', status:'Approved',     approval:'Sujatha Admin', date:'05 Apr 2026' },
+      { code:'VE-GV-BONNET-C2', title:'GV Bonnet Component Dwg',     type:'C', rev:'Rev 2', status:'Approved',     approval:'Sujatha Admin', date:'05 Apr 2026' },
+      { code:'VE-4-300-GLV-GA', title:'Globe Valve 4" 300# GA',      type:'G', rev:'Rev 1', status:'Under Review',  approval:'Pending',       date:'20 May 2026' },
+      { code:'VE-BFV-12-ASM',   title:'BFV 12" 150# Assembly',       type:'A', rev:'Rev 1', status:'Under Review',  approval:'Pending',       date:'22 May 2026' },
+      { code:'VE-BV-2-600-GA',  title:'Ball Valve 2" 600# GA',       type:'G', rev:'Draft', status:'Draft',         approval:'—',             date:'25 May 2026' },
+      { code:'VE-GV-DISC-C3',   title:'GV Disc Component Dwg',       type:'C', rev:'Rev 1', status:'Approved',     approval:'Sujatha Admin', date:'12 Mar 2026' },
+      { code:'VE-10-150-GV-GA', title:'Gate Valve 10" 150# GA',      type:'G', rev:'Rev 2', status:'Approved',     approval:'Sujatha Admin', date:'01 Mar 2026' }
+    ],
+    machines: [
+      { code:'CNC-01',  name:'CNC Lathe 500',               dept:'Machining',  capacity:'500mm dia × 1500mm',  status:'Active'      },
+      { code:'CNC-02',  name:'CNC Lathe 250',               dept:'Machining',  capacity:'250mm dia × 1000mm',  status:'Active'      },
+      { code:'VMC-01',  name:'Vertical Machining Centre',   dept:'Machining',  capacity:'630×500×500 mm',       status:'Active'      },
+      { code:'HMC-01',  name:'Horizontal Machining Centre', dept:'Machining',  capacity:'800×630×630 mm',       status:'Maintenance' },
+      { code:'HYD-01',  name:'Hydraulic Test Bench',        dept:'Testing',    capacity:'600 bar / DN600',      status:'Active'      },
+      { code:'HYD-02',  name:'Pneumatic Test Bench',        dept:'Testing',    capacity:'10 bar / DN300',       status:'Active'      },
+      { code:'GRIND-01',name:'Surface Grinder',             dept:'Finishing',  capacity:'400×200mm surface',    status:'Active'      },
+      { code:'WELD-01', name:'MIG Welding Station',         dept:'Fabrication',capacity:'300A / up to 25mm',   status:'Active'      }
+    ]
+  }));
+    });
+  </script>
+</body>
+</html>

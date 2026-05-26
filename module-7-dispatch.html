@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dispatch &amp; Invoicing — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-area { margin: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] font-sans text-sm text-gray-800" x-data="dispatchApp()">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 bg-[#1e3a5f] flex items-center justify-between px-4 z-50 shadow-md no-print">
+    <span class="text-white font-semibold text-base tracking-wide">MSSHPL ERP <span class="text-[#0ea5e9]">|</span> Veeyes Engineering</span>
+    <div class="flex items-center gap-4 text-white text-sm">
+      <span class="opacity-80">Sujatha Admin</span>
+      <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-3 py-1 rounded text-xs font-medium transition">Logout</button>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed top-12 left-0 bottom-0 w-52 bg-[#1a3050] flex flex-col z-40 overflow-y-auto no-print">
+    <nav class="mt-2 flex flex-col gap-0.5 px-2">
+      <a href="dashboard.html" class="sidebar-link" style="background:#0f2840;border-bottom:1px solid rgba(255,255,255,0.08);">🏠 Home / Dashboard</a>
+  <a href="module-1-admin.html"     class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">🔐 Admin</a>
+      <a href="module-2-masters.html"   class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📋 Masters</a>
+      <a href="module-3-sales.html"     class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📦 Sales</a>
+      <a href="module-4-purchase.html"  class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">🛒 Purchase</a>
+      <a href="module-5-production.html" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">⚙️ Production</a>
+      <a href="module-6-quality.html"   class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">✅ Quality</a>
+      <a href="module-7-dispatch.html"  class="sidebar-link flex items-center gap-2 px-3 py-2 rounded bg-[#0ea5e9] text-white text-sm font-semibold">🚚 Dispatch</a>
+      <a href="module-8-subcontract.html" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">🔧 Subcontract</a>
+      <a href="module-9-inventory.html" class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📊 Inventory</a>
+      <a href="module-10-mis.html"      class="sidebar-link flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📈 MIS</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 p-4 min-h-screen no-print">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-xl font-bold text-[#1e3a5f]">Dispatch &amp; Invoicing</h1>
+        <p class="text-gray-500 text-xs mt-0.5">Manage dispatch advice, GST invoices, export invoices, packing lists &amp; delivery challans</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="flex gap-1 mb-4 border-b border-gray-200 no-print">
+      <template x-for="tab in tabs" :key="tab.id">
+        <button
+          @click="activeTab = tab.id"
+          :class="activeTab === tab.id
+            ? 'border-b-2 border-[#0ea5e9] text-[#0ea5e9] font-semibold bg-white'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+          class="px-4 py-2 text-sm rounded-t transition whitespace-nowrap"
+          x-text="tab.label">
+        </button>
+      </template>
+    </div>
+
+    <!-- ===================== TAB 1: DISPATCH ADVICE ===================== -->
+    <div x-show="activeTab === 'dispadvice'" x-cloak>
+
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 mb-4 flex flex-wrap items-end gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">OA No</label>
+          <input type="text" placeholder="e.g. OA-2526-0123" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-44 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Customer</label>
+          <select class="border border-gray-200 rounded px-3 py-1.5 text-sm w-48 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]">
+            <option value="">— All Customers —</option>
+            <option>BHEL Trichy</option>
+            <option>IOCL Panipat</option>
+            <option>L&amp;T Construction</option>
+            <option>ONGC Hazira</option>
+            <option>Crane Valves Europe</option>
+          </select>
+        </div>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Search</button>
+        <div class="ml-auto flex gap-2">
+          <button @click="batchDispatch()" class="bg-[#1e3a5f] hover:bg-[#16304f] text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Batch Dispatch
+          </button>
+        </div>
+      </div>
+
+      <!-- Ready to Dispatch Table -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="font-semibold text-[#1e3a5f]">Ready to Dispatch</h2>
+          <span class="text-xs text-gray-400">6 records</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
+              <tr>
+                <th class="px-3 py-2 text-left w-8"><input type="checkbox" class="rounded" /></th>
+                <th class="px-3 py-2 text-left">OA No</th>
+                <th class="px-3 py-2 text-left">Customer</th>
+                <th class="px-3 py-2 text-left">Valve Description</th>
+                <th class="px-3 py-2 text-center">Qty</th>
+                <th class="px-3 py-2 text-left">Valve Serials</th>
+                <th class="px-3 py-2 text-center">QA Status</th>
+                <th class="px-3 py-2 text-center">Dispatch Hold</th>
+                <th class="px-3 py-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <template x-for="row in dispatchRows" :key="row.oa">
+                <tr class="hover:bg-gray-50 transition" :class="row.hold === 'YES' ? 'bg-amber-50' : ''">
+                  <td class="px-3 py-2.5"><input type="checkbox" class="rounded" :disabled="row.hold === 'YES'" /></td>
+                  <td class="px-3 py-2.5 font-medium text-[#1e3a5f]" x-text="row.oa"></td>
+                  <td class="px-3 py-2.5 text-gray-700" x-text="row.customer"></td>
+                  <td class="px-3 py-2.5 text-gray-700" x-text="row.description"></td>
+                  <td class="px-3 py-2.5 text-center font-medium" x-text="row.qty"></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex flex-wrap gap-1">
+                      <template x-for="s in row.serials" :key="s">
+                        <span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-xs font-mono" x-text="s"></span>
+                      </template>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span :class="row.qa === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                      class="px-2 py-0.5 rounded-full text-xs font-semibold" x-text="row.qa"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span x-show="row.hold === 'YES'" class="relative group">
+                      <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-semibold cursor-help">YES</span>
+                      <span class="absolute z-10 left-1/2 -translate-x-1/2 bottom-full mb-1 w-48 bg-gray-800 text-white text-xs rounded px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none shadow-lg" x-text="row.holdReason"></span>
+                    </span>
+                    <span x-show="row.hold === 'NO'" class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">NO</span>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <button
+                      :disabled="row.hold === 'YES' || row.qa !== 'Pass'"
+                      :class="(row.hold === 'NO' && row.qa === 'Pass') ? 'bg-green-600 hover:bg-green-500 text-white cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+                      class="px-3 py-1 rounded text-xs font-medium transition"
+                      @click="row.hold === 'NO' && row.qa === 'Pass' && createDispatch(row)">
+                      Create Dispatch
+                    </button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Dispatch Created Toast -->
+      <div x-show="dispatchCreated" x-transition x-cloak class="fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-xl text-sm font-medium z-50">
+        Dispatch advice created successfully!
+      </div>
+    </div>
+
+    <!-- ===================== TAB 2: GST INVOICE ===================== -->
+    <div x-show="activeTab === 'gstinvoice'" x-cloak>
+
+      <!-- Action Bar -->
+      <div class="flex items-center gap-2 mb-4 no-print">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Invoice
+        </button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <button onclick="window.print()" class="bg-[#1e3a5f] hover:bg-[#16304f] text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Print Invoice
+        </button>
+        <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Email to Customer
+        </button>
+        <div class="ml-auto">
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">CONFIRMED</span>
+        </div>
+      </div>
+
+      <!-- INVOICE DOCUMENT -->
+      <div class="bg-white border-2 border-gray-800 rounded max-w-4xl mx-auto print-area shadow-md" id="gst-invoice-doc">
+
+        <!-- Company Header -->
+        <div class="border-b-2 border-gray-800">
+          <div class="grid grid-cols-3 divide-x-2 divide-gray-800">
+            <!-- Left: Company Info -->
+            <div class="p-4">
+              <div class="font-bold text-[#1e3a5f] text-base leading-tight">MSSHPL / Veeyes Engineering Pvt Ltd</div>
+              <div class="text-xs text-gray-600 mt-1.5 leading-relaxed">
+                Plot No. 45, Industrial Estate,<br/>
+                Peenya, Bangalore - 560 058<br/>
+                Karnataka, India<br/>
+                <span class="font-medium">GSTIN:</span> 29AABCV1234F1Z5<br/>
+                <span class="font-medium">Phone:</span> +91-80-28394567<br/>
+                <span class="font-medium">Email:</span> accounts@veeyeseng.com<br/>
+                <span class="font-medium">PAN:</span> AABCV1234F
+              </div>
+            </div>
+            <!-- Center: Title -->
+            <div class="p-4 flex flex-col items-center justify-center text-center">
+              <div class="text-2xl font-extrabold text-gray-800 tracking-widest border-b-2 border-gray-300 pb-2 mb-2">TAX INVOICE</div>
+              <div class="text-xs text-gray-500">Original for Recipient</div>
+              <div class="mt-3 flex gap-2 text-xs">
+                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-medium">B2B</span>
+                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">INTRA-STATE</span>
+              </div>
+            </div>
+            <!-- Right: Invoice Meta -->
+            <div class="p-4">
+              <table class="w-full text-xs">
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Invoice No:</td>
+                  <td class="py-1 font-bold text-[#1e3a5f]">INV-2526-0234</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Invoice Date:</td>
+                  <td class="py-1 font-medium">26-May-2026</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">PO Reference:</td>
+                  <td class="py-1 font-medium">BHEL-PO-2526-0089</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">OA No:</td>
+                  <td class="py-1 font-medium">OA-2526-0123</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Dispatch DC:</td>
+                  <td class="py-1 font-medium">DAC-2526-0056</td>
+                </tr>
+                <tr>
+                  <td class="py-1 font-semibold text-gray-600 pr-2">E-Way Bill:</td>
+                  <td class="py-1 font-medium">2309456781234</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800 border-b-2 border-gray-800">
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Bill To</div>
+            <div class="font-bold text-gray-800">BHEL — Bharat Heavy Electricals Ltd</div>
+            <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+              BHEL Complex, Trichy - 620 014<br/>
+              Tamil Nadu, India<br/>
+              <span class="font-medium">GSTIN:</span> 33AAACB0552A1Z1<br/>
+              <span class="font-medium">State Code:</span> 33 - Tamil Nadu<br/>
+              <span class="font-medium">Contact:</span> Mr. R. Krishnamurthy
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Ship To</div>
+            <div class="font-bold text-gray-800">BHEL Site Office, Ramagundam</div>
+            <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+              STPS Colony, Ramagundam,<br/>
+              Karimnagar, Telangana - 505 215<br/>
+              <span class="font-medium">GSTIN:</span> 36AAACB0552A1Z9<br/>
+              <span class="font-medium">State Code:</span> 36 - Telangana<br/>
+              <span class="font-medium">Site Engineer:</span> Mr. P. Srinivas
+            </div>
+          </div>
+        </div>
+
+        <!-- Line Items Table -->
+        <div class="border-b-2 border-gray-800">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-gray-100 border-b border-gray-800">
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold text-gray-700">Sr</th>
+                <th class="px-3 py-2 text-left border-r border-gray-400 font-bold text-gray-700">Description of Goods</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold text-gray-700">HSN Code</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold text-gray-700">Qty</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold text-gray-700">Unit</th>
+                <th class="px-3 py-2 text-right border-r border-gray-400 font-bold text-gray-700">Rate (₹)</th>
+                <th class="px-3 py-2 text-right font-bold text-gray-700">Taxable Value (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">1</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold text-gray-800">Gate Valve 6" 150# WCB RF</div>
+                  <div class="text-gray-500 mt-0.5">As per Drawing No. VE-GV-6-150 | ASME B16.34</div>
+                  <div class="text-gray-400 mt-0.5">Serial Nos: 84818, 84819, 84820 ... (10 nos)</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-mono text-gray-700">84818090</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">10</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200">45,000.00</td>
+                <td class="px-3 py-3 text-right font-semibold">4,50,000.00</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">2</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold text-gray-800">Globe Valve 2" 300# A105 RF</div>
+                  <div class="text-gray-500 mt-0.5">Forged Steel, ASME B16.34, Trim No. 5</div>
+                  <div class="text-gray-400 mt-0.5">Serial Nos: 84821, 84822 ... (5 nos)</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-mono text-gray-700">84818090</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">5</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200">22,000.00</td>
+                <td class="px-3 py-3 text-right font-semibold">1,10,000.00</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">3</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold text-gray-800">Check Valve 4" 150# WCB</div>
+                  <div class="text-gray-500 mt-0.5">Swing Type, RF Flanged, ASME B16.34</div>
+                  <div class="text-gray-400 mt-0.5">Serial Nos: 84826, 84827 ... (8 nos)</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-mono text-gray-700">84818090</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">8</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200">18,500.00</td>
+                <td class="px-3 py-3 text-right font-semibold">1,48,000.00</td>
+              </tr>
+              <!-- Empty rows for print appearance -->
+              <tr class="border-b border-gray-100" style="height:28px">
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tax Calculation + QR Code -->
+        <div class="grid grid-cols-3 divide-x-2 divide-gray-800 border-b-2 border-gray-800">
+          <!-- Amount in Words -->
+          <div class="p-4 col-span-1">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Amount in Words</div>
+            <div class="text-sm font-semibold text-gray-800 leading-relaxed bg-gray-50 border border-gray-200 rounded p-2">
+              Rupees Eight Lakhs Thirty Five Thousand Four Hundred Forty One Only
+            </div>
+            <div class="mt-3 text-xs text-gray-500">
+              <div class="font-semibold mb-1">Bank Details:</div>
+              <div>Bank: State Bank of India</div>
+              <div>Branch: Peenya Industrial Estate</div>
+              <div>A/C No: 31234567890</div>
+              <div>IFSC: SBIN0040123</div>
+            </div>
+          </div>
+
+          <!-- Tax Breakdown -->
+          <div class="p-4 col-span-1">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Tax Summary</div>
+            <table class="w-full text-xs">
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">Sub Total</td>
+                <td class="py-1 text-right font-medium">₹ 7,08,000.00</td>
+              </tr>
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">Packing &amp; Forwarding</td>
+                <td class="py-1 text-right font-medium">₹ 0.00</td>
+              </tr>
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">CGST @ 9%</td>
+                <td class="py-1 text-right font-medium">₹ 63,720.00</td>
+              </tr>
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">SGST @ 9%</td>
+                <td class="py-1 text-right font-medium">₹ 63,720.00</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-1 text-gray-600">Total Tax</td>
+                <td class="py-1 text-right font-semibold">₹ 1,27,440.00</td>
+              </tr>
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">Round Off</td>
+                <td class="py-1 text-right font-medium">₹ 0.56</td>
+              </tr>
+              <tr class="bg-gray-100">
+                <td class="py-1.5 font-extrabold text-gray-800 text-sm">GRAND TOTAL</td>
+                <td class="py-1.5 text-right font-extrabold text-[#1e3a5f] text-sm">₹ 8,35,441</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- QR Code Placeholder (IRN) -->
+          <div class="p-4 flex flex-col items-center justify-center">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider text-center">e-Invoice QR</div>
+            <div class="w-20 h-20 bg-gray-200 border-2 border-gray-400 rounded flex items-center justify-center">
+              <div class="text-center">
+                <div class="text-2xl">⬛</div>
+                <div class="text-xs text-gray-500 leading-tight">IRN QR<br/>Code</div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500 mt-2 text-center leading-tight">
+              IRN Mandatory<br/>for e-Invoice
+            </div>
+            <div class="mt-2 text-xs font-mono text-gray-400 text-center break-all">
+              IRN: a3e4f5...
+            </div>
+          </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800">
+          <div class="p-4">
+            <div class="text-xs text-gray-500 mb-6">
+              <span class="font-semibold">Declaration:</span> We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct. Goods once sold will not be taken back. Subject to Bangalore jurisdiction only.
+            </div>
+          </div>
+          <div class="p-4 flex flex-col items-end">
+            <div class="text-xs font-semibold text-gray-700 mb-8">For Veeyes Engineering Pvt Ltd</div>
+            <div class="border-t-2 border-gray-800 pt-1 text-xs text-gray-600 text-center w-40">Authorized Signatory</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== TAB 3: EXPORT INVOICE ===================== -->
+    <div x-show="activeTab === 'exportinvoice'" x-cloak>
+
+      <!-- Action Bar -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Export Invoice
+        </button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <button onclick="window.print()" class="bg-[#1e3a5f] hover:bg-[#16304f] text-white px-4 py-1.5 rounded text-sm font-medium transition">Print Invoice</button>
+        <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium transition">Email to Customer</button>
+        <div class="ml-auto flex items-center gap-3">
+          <div class="text-xs text-gray-500 bg-white border border-gray-200 px-3 py-1.5 rounded">
+            Exchange Rate: <span class="font-bold text-[#1e3a5f]">1 USD = ₹ 83.50</span>
+          </div>
+          <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">EXPORT - ZERO RATED GST</span>
+        </div>
+      </div>
+
+      <!-- Export Invoice Document -->
+      <div class="bg-white border-2 border-gray-800 rounded max-w-4xl mx-auto shadow-md">
+
+        <!-- Header -->
+        <div class="border-b-2 border-gray-800">
+          <div class="grid grid-cols-3 divide-x-2 divide-gray-800">
+            <div class="p-4">
+              <div class="font-bold text-[#1e3a5f] text-base">MSSHPL / Veeyes Engineering Pvt Ltd</div>
+              <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+                Plot No. 45, Industrial Estate, Peenya<br/>
+                Bangalore - 560 058, Karnataka, India<br/>
+                <span class="font-medium">GSTIN:</span> 29AABCV1234F1Z5<br/>
+                <span class="font-medium">IEC Code:</span> 0810034567<br/>
+                <span class="font-medium">Phone:</span> +91-80-28394567
+              </div>
+            </div>
+            <div class="p-4 flex flex-col items-center justify-center text-center">
+              <div class="text-xl font-extrabold text-gray-800 tracking-widest border-b-2 border-gray-300 pb-2 mb-2">EXPORT INVOICE</div>
+              <div class="text-xs text-gray-500">Commercial Invoice</div>
+              <div class="mt-2 flex flex-col gap-1 text-xs">
+                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">ZERO-RATED GST</span>
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">LUT EXPORT</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <table class="w-full text-xs">
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Invoice No:</td>
+                  <td class="py-1 font-bold text-[#1e3a5f]">EXP-INV-2526-0018</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Date:</td>
+                  <td class="py-1">26-May-2026</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">PO Ref:</td>
+                  <td class="py-1">CVE-PO-2526-0034</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Currency:</td>
+                  <td class="py-1 font-bold text-green-700">USD</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Ex. Rate:</td>
+                  <td class="py-1">1 USD = ₹ 83.50</td>
+                </tr>
+                <tr>
+                  <td class="py-1 font-semibold text-gray-600 pr-2">LUT No:</td>
+                  <td class="py-1">AD291123LUT00234</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buyer / Ship Info -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800 border-b-2 border-gray-800">
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Buyer</div>
+            <div class="font-bold text-gray-800">Crane Valves Europe B.V.</div>
+            <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+              Industrieweg 14, 3044 AS Rotterdam<br/>
+              The Netherlands<br/>
+              <span class="font-medium">VAT No:</span> NL854678901B01<br/>
+              <span class="font-medium">Contact:</span> Mr. Hans van der Berg<br/>
+              <span class="font-medium">Email:</span> procurement@cranevalves.eu
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Consignee / Ship To</div>
+            <div class="font-bold text-gray-800">Crane Valves Warehouse, Rotterdam</div>
+            <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+              Same as Buyer<br/>
+              <span class="font-medium">Port of Loading:</span> Bangalore ICD / KIAL<br/>
+              <span class="font-medium">Port of Discharge:</span> Rotterdam, Netherlands<br/>
+              <span class="font-medium">Country of Origin:</span> India<br/>
+              <span class="font-medium">Incoterms:</span> FOB Bangalore
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Details Bar -->
+        <div class="bg-blue-50 border-b-2 border-gray-800 px-4 py-2 grid grid-cols-4 gap-3 text-xs">
+          <div><span class="font-semibold text-gray-600">Shipping Bill No:</span><br/><span class="font-bold text-[#1e3a5f]">SB-2526-0081</span></div>
+          <div><span class="font-semibold text-gray-600">Shipping Bill Date:</span><br/><span>24-May-2026</span></div>
+          <div><span class="font-semibold text-gray-600">AWB / BL No:</span><br/><span>BLRTM2526081234</span></div>
+          <div><span class="font-semibold text-gray-600">Mode of Transport:</span><br/><span>Sea Freight (FCL)</span></div>
+        </div>
+
+        <!-- Line Items -->
+        <div class="border-b-2 border-gray-800">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-gray-100 border-b border-gray-800">
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Sr</th>
+                <th class="px-3 py-2 text-left border-r border-gray-400 font-bold">Description of Goods</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">HSN</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Qty</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Unit</th>
+                <th class="px-3 py-2 text-right border-r border-gray-400 font-bold">Rate (USD)</th>
+                <th class="px-3 py-2 text-right border-r border-gray-400 font-bold">Amount (USD)</th>
+                <th class="px-3 py-2 text-right font-bold">INR Equiv.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">1</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold">Gate Valve 8" 300# SS316 RF</div>
+                  <div class="text-gray-500">Origin: India | Drawing: VE-GV-8-300</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-mono">84818090</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">5</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200">$ 1,200.00</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200 font-semibold">$ 6,000.00</td>
+                <td class="px-3 py-3 text-right text-gray-500">₹ 5,01,000</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">2</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold">Globe Valve 4" 150# A216 WCB</div>
+                  <div class="text-gray-500">Origin: India | Drawing: VE-GLV-4-150</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-mono">84818090</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">12</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200">$ 375.00</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200 font-semibold">$ 4,500.00</td>
+                <td class="px-3 py-3 text-right text-gray-500">₹ 3,75,750</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">3</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold">Butterfly Valve 6" PN16 SS304</div>
+                  <div class="text-gray-500">Origin: India | Drawing: VE-BFV-6-PN16</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-mono">84818090</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">20</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200">$ 225.00</td>
+                <td class="px-3 py-3 text-right border-r border-gray-200 font-semibold">$ 4,500.00</td>
+                <td class="px-3 py-3 text-right text-gray-500">₹ 3,75,750</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totals and Signature -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800 border-b-2 border-gray-800">
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2">Amount in Words (USD)</div>
+            <div class="text-sm font-semibold bg-gray-50 border border-gray-200 rounded p-2">
+              US Dollars Fifteen Thousand Only
+            </div>
+            <div class="mt-3 text-xs">
+              <div class="font-semibold text-gray-600 mb-1">Declaration:</div>
+              <div class="text-gray-500">We declare that this invoice shows the actual price of the goods described. Exported under LUT without payment of IGST.</div>
+            </div>
+          </div>
+          <div class="p-4">
+            <table class="w-full text-xs ml-auto">
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">Sub Total (USD)</td>
+                <td class="py-1 text-right font-medium">$ 15,000.00</td>
+              </tr>
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">IGST (Zero Rated - LUT)</td>
+                <td class="py-1 text-right font-medium text-green-600">$ 0.00</td>
+              </tr>
+              <tr class="border-b border-gray-100">
+                <td class="py-1 text-gray-600">Freight (FOB)</td>
+                <td class="py-1 text-right font-medium">$ 0.00</td>
+              </tr>
+              <tr class="bg-gray-100">
+                <td class="py-2 font-extrabold text-gray-800 text-sm">TOTAL (USD)</td>
+                <td class="py-2 text-right font-extrabold text-[#1e3a5f] text-sm">$ 15,000.00</td>
+              </tr>
+              <tr class="border-t border-gray-200">
+                <td class="py-1 text-gray-500">INR Equivalent (@ 83.50)</td>
+                <td class="py-1 text-right text-gray-500">₹ 12,52,500</td>
+              </tr>
+              <tr class="border-t border-gray-100">
+                <td class="py-1 text-gray-500">EUR Equivalent (@ 0.92)</td>
+                <td class="py-1 text-right text-gray-500">€ 13,800</td>
+              </tr>
+            </table>
+            <div class="mt-6 flex flex-col items-end">
+              <div class="text-xs font-semibold text-gray-700 mb-6">For Veeyes Engineering Pvt Ltd</div>
+              <div class="border-t-2 border-gray-800 pt-1 text-xs text-gray-600 text-center w-40">Authorized Signatory</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 4: PACKING LIST ===================== -->
+    <div x-show="activeTab === 'packlist'" x-cloak>
+
+      <div class="flex items-center gap-2 mb-4">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition">+ New Packing List</button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <button onclick="window.print()" class="bg-[#1e3a5f] hover:bg-[#16304f] text-white px-4 py-1.5 rounded text-sm font-medium transition">Print</button>
+      </div>
+
+      <div class="bg-white border-2 border-gray-800 rounded max-w-5xl mx-auto shadow-md">
+
+        <!-- Header -->
+        <div class="border-b-2 border-gray-800">
+          <div class="grid grid-cols-3 divide-x-2 divide-gray-800">
+            <div class="p-4">
+              <div class="font-bold text-[#1e3a5f] text-base">MSSHPL / Veeyes Engineering Pvt Ltd</div>
+              <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+                Plot No. 45, Industrial Estate, Peenya<br/>
+                Bangalore - 560 058<br/>
+                GSTIN: 29AABCV1234F1Z5
+              </div>
+            </div>
+            <div class="p-4 flex items-center justify-center">
+              <div class="text-2xl font-extrabold text-gray-800 tracking-widest">PACKING LIST</div>
+            </div>
+            <div class="p-4">
+              <table class="w-full text-xs">
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">PL No:</td>
+                  <td class="py-1 font-bold text-[#1e3a5f]">PL-2526-0078</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">PL Date:</td>
+                  <td class="py-1">26-May-2026</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Invoice No:</td>
+                  <td class="py-1">INV-2526-0234</td>
+                </tr>
+                <tr>
+                  <td class="py-1 font-semibold text-gray-600 pr-2">PO Ref:</td>
+                  <td class="py-1">BHEL-PO-2526-0089</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill To / Ship To -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800 border-b-2 border-gray-800">
+          <div class="p-3">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-1 tracking-wider">Customer</div>
+            <div class="font-bold text-gray-800 text-sm">BHEL — Bharat Heavy Electricals Ltd</div>
+            <div class="text-xs text-gray-600">Trichy - 620 014, Tamil Nadu</div>
+          </div>
+          <div class="p-3">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-1 tracking-wider">Delivery Address</div>
+            <div class="font-bold text-gray-800 text-sm">BHEL Site Office, Ramagundam</div>
+            <div class="text-xs text-gray-600">Karimnagar, Telangana - 505 215</div>
+          </div>
+        </div>
+
+        <!-- Packing Table -->
+        <div class="border-b-2 border-gray-800 overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-gray-100 border-b border-gray-800">
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Sr</th>
+                <th class="px-3 py-2 text-left border-r border-gray-400 font-bold">Item / Drawing</th>
+                <th class="px-3 py-2 text-left border-r border-gray-400 font-bold">Description</th>
+                <th class="px-3 py-2 text-left border-r border-gray-400 font-bold">Valve Serial Nos</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Gross Wt (Kg)</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Net Wt (Kg)</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Dimensions L×W×H (cm)</th>
+                <th class="px-3 py-2 text-center font-bold">Box No</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row, i) in packingRows" :key="i">
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="px-3 py-2.5 text-center border-r border-gray-200 text-gray-500" x-text="i+1"></td>
+                  <td class="px-3 py-2.5 border-r border-gray-200 font-mono text-blue-700" x-text="row.item"></td>
+                  <td class="px-3 py-2.5 border-r border-gray-200">
+                    <div class="font-semibold" x-text="row.desc"></div>
+                    <div class="text-gray-500" x-text="row.qty + ' Nos'"></div>
+                  </td>
+                  <td class="px-3 py-2.5 border-r border-gray-200 font-mono text-xs text-gray-600" x-text="row.serials"></td>
+                  <td class="px-3 py-2.5 text-center border-r border-gray-200 font-medium" x-text="row.grossWt"></td>
+                  <td class="px-3 py-2.5 text-center border-r border-gray-200 font-medium" x-text="row.netWt"></td>
+                  <td class="px-3 py-2.5 text-center border-r border-gray-200 font-mono" x-text="row.dims"></td>
+                  <td class="px-3 py-2.5 text-center font-bold text-[#1e3a5f]" x-text="'BOX-' + (i+1).toString().padStart(2,'0')"></td>
+                </tr>
+              </template>
+            </tbody>
+            <tfoot>
+              <tr class="bg-gray-100 border-t-2 border-gray-800 font-bold">
+                <td class="px-3 py-2.5 text-center border-r border-gray-400" colspan="2">TOTALS</td>
+                <td class="px-3 py-2.5 border-r border-gray-400">Total Packages: <span class="text-[#1e3a5f]">5 Boxes</span></td>
+                <td class="px-3 py-2.5 border-r border-gray-400 text-gray-500">—</td>
+                <td class="px-3 py-2.5 text-center border-r border-gray-400 text-[#1e3a5f]">450 Kg</td>
+                <td class="px-3 py-2.5 text-center border-r border-gray-400 text-[#1e3a5f]">385 Kg</td>
+                <td class="px-3 py-2.5 border-r border-gray-400"></td>
+                <td class="px-3 py-2.5 text-center text-[#1e3a5f]">5</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Signature -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800">
+          <div class="p-4">
+            <div class="text-xs text-gray-500">
+              <span class="font-semibold">Note:</span> All valves are hydro-tested and NDT inspected. Packed as per standard packing instructions. Marking on boxes as per customer specification.
+            </div>
+          </div>
+          <div class="p-4 flex flex-col items-end">
+            <div class="text-xs font-semibold text-gray-700 mb-8">For MSSHPL / Veeyes Engineering Pvt Ltd</div>
+            <div class="border-t-2 border-gray-800 pt-1 text-xs text-gray-600 text-center w-44">Authorized Signatory</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== TAB 5: DELIVERY CHALLAN ===================== -->
+    <div x-show="activeTab === 'delchallan'" x-cloak>
+
+      <div class="flex items-center gap-2 mb-4">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition">+ New Delivery Challan</button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <button onclick="window.print()" class="bg-[#1e3a5f] hover:bg-[#16304f] text-white px-4 py-1.5 rounded text-sm font-medium transition">Print DC</button>
+        <div class="ml-auto">
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">DISPATCHED</span>
+        </div>
+      </div>
+
+      <div class="bg-white border-2 border-gray-800 rounded max-w-4xl mx-auto shadow-md">
+
+        <!-- Header -->
+        <div class="border-b-2 border-gray-800">
+          <div class="grid grid-cols-3 divide-x-2 divide-gray-800">
+            <div class="p-4">
+              <div class="font-bold text-[#1e3a5f] text-base">MSSHPL / Veeyes Engineering Pvt Ltd</div>
+              <div class="text-xs text-gray-600 mt-1 leading-relaxed">
+                Plot No. 45, Industrial Estate, Peenya<br/>
+                Bangalore - 560 058, Karnataka<br/>
+                GSTIN: 29AABCV1234F1Z5
+              </div>
+            </div>
+            <div class="p-4 flex items-center justify-center">
+              <div class="text-2xl font-extrabold text-gray-800 tracking-widest">DELIVERY CHALLAN</div>
+            </div>
+            <div class="p-4">
+              <table class="w-full text-xs">
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">DC No:</td>
+                  <td class="py-1 font-bold text-[#1e3a5f]">DC-2526-0112</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">DC Date:</td>
+                  <td class="py-1">26-May-2026</td>
+                </tr>
+                <tr class="border-b border-gray-200">
+                  <td class="py-1 font-semibold text-gray-600 pr-2">Invoice Ref:</td>
+                  <td class="py-1">INV-2526-0234</td>
+                </tr>
+                <tr>
+                  <td class="py-1 font-semibold text-gray-600 pr-2">E-Way Bill:</td>
+                  <td class="py-1">2309456781234</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer / Purpose Info -->
+        <div class="grid grid-cols-2 divide-x-2 divide-gray-800 border-b-2 border-gray-800">
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Consignee</div>
+            <div class="font-bold text-gray-800">BHEL — Bharat Heavy Electricals Ltd</div>
+            <div class="text-xs text-gray-600 mt-1">BHEL Site Office, Ramagundam<br/>Karimnagar, Telangana - 505 215</div>
+          </div>
+          <div class="p-4">
+            <div class="text-xs font-bold uppercase text-gray-500 mb-2 tracking-wider">Purpose</div>
+            <div class="text-sm font-semibold text-gray-800 bg-blue-50 border border-blue-200 rounded p-2">
+              Delivery against PO BHEL-2526-0089 / Invoice INV-2526-0234
+            </div>
+          </div>
+        </div>
+
+        <!-- Transport Details -->
+        <div class="bg-gray-50 border-b-2 border-gray-800 p-3 grid grid-cols-4 gap-3 text-xs">
+          <div>
+            <span class="font-semibold text-gray-600 block mb-0.5">Transporter</span>
+            <span class="font-medium">VRL Logistics</span>
+          </div>
+          <div>
+            <span class="font-semibold text-gray-600 block mb-0.5">Vehicle No</span>
+            <span class="font-bold font-mono text-[#1e3a5f]">KA-01-TN-5678</span>
+          </div>
+          <div>
+            <span class="font-semibold text-gray-600 block mb-0.5">Driver Name</span>
+            <span class="font-medium">Suresh Kumar</span>
+          </div>
+          <div>
+            <span class="font-semibold text-gray-600 block mb-0.5">Expected Delivery</span>
+            <span class="font-medium">28-May-2026</span>
+          </div>
+        </div>
+
+        <!-- DC Items Table -->
+        <div class="border-b-2 border-gray-800 overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-gray-100 border-b border-gray-800">
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Sr</th>
+                <th class="px-3 py-2 text-left border-r border-gray-400 font-bold">Item Description</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Qty</th>
+                <th class="px-3 py-2 text-center border-r border-gray-400 font-bold">Unit</th>
+                <th class="px-3 py-2 text-left font-bold">Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">1</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold">Gate Valve 6" 150# WCB RF</div>
+                  <div class="text-gray-500">Drawing: VE-GV-6-150 | Serials: 84818–84827</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">10</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-gray-600">As per Invoice INV-2526-0234</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">2</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold">Globe Valve 2" 300# A105 RF</div>
+                  <div class="text-gray-500">Drawing: VE-GLV-2-300 | Serials: 84821–84825</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">5</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-gray-600">As per Invoice INV-2526-0234</td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="px-3 py-3 text-center border-r border-gray-200 text-gray-500">3</td>
+                <td class="px-3 py-3 border-r border-gray-200">
+                  <div class="font-semibold">Check Valve 4" 150# WCB</div>
+                  <div class="text-gray-500">Drawing: VE-CHK-4-150 | Serials: 84826–84833</div>
+                </td>
+                <td class="px-3 py-3 text-center border-r border-gray-200 font-bold">8</td>
+                <td class="px-3 py-3 text-center border-r border-gray-200">Nos</td>
+                <td class="px-3 py-3 text-gray-600">As per Invoice INV-2526-0234</td>
+              </tr>
+              <tr class="border-b border-gray-100" style="height:28px">
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td class="border-r border-gray-100"></td>
+                <td></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="bg-gray-100 border-t-2 border-gray-800 font-bold">
+                <td class="px-3 py-2 text-center border-r border-gray-400" colspan="2">TOTAL</td>
+                <td class="px-3 py-2 text-center border-r border-gray-400 text-[#1e3a5f]">23</td>
+                <td class="px-3 py-2 text-center border-r border-gray-400">Nos</td>
+                <td class="px-3 py-2">Total Weight: 385 Kg | 5 Packages</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Signature -->
+        <div class="grid grid-cols-3 divide-x-2 divide-gray-800">
+          <div class="p-4">
+            <div class="text-xs font-semibold text-gray-600 mb-1">Prepared By</div>
+            <div class="text-xs text-gray-500">Sujatha A.</div>
+            <div class="mt-4 border-t border-gray-400 pt-1 text-xs text-center text-gray-500">Dispatch Incharge</div>
+          </div>
+          <div class="p-4">
+            <div class="text-xs font-semibold text-gray-600 mb-1">Checked By</div>
+            <div class="mt-4 border-t border-gray-400 pt-1 text-xs text-center text-gray-500">QA / Store</div>
+          </div>
+          <div class="p-4 flex flex-col items-end">
+            <div class="text-xs font-semibold text-gray-700 mb-8">For Veeyes Engineering Pvt Ltd</div>
+            <div class="border-t-2 border-gray-800 pt-1 text-xs text-gray-600 text-center w-40">Authorized Signatory</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function dispatchApp() {
+      return {
+        activeTab: 'dispadvice',
+        dispatchCreated: false,
+        tabs: [
+          { id: 'dispadvice',    label: 'Dispatch Advice' },
+          { id: 'gstinvoice',   label: 'GST Invoice' },
+          { id: 'exportinvoice', label: 'Export Invoice' },
+          { id: 'packlist',     label: 'Packing List' },
+          { id: 'delchallan',   label: 'Delivery Challan' },
+        ],
+        dispatchRows: [
+          {
+            oa: 'OA-2526-0123', customer: 'BHEL Trichy',
+            description: 'Gate Valve 6" 150# WCB RF', qty: 10,
+            serials: ['84818','84819','84820','...+7'],
+            qa: 'Pass', hold: 'NO', holdReason: ''
+          },
+          {
+            oa: 'OA-2526-0124', customer: 'IOCL Panipat',
+            description: 'Globe Valve 3" 300# A105', qty: 5,
+            serials: ['84830','84831','84832','84833','84834'],
+            qa: 'Pass', hold: 'YES', holdReason: 'Payment outstanding: INV-2526-0189 (₹3.2L) — Release after receipt'
+          },
+          {
+            oa: 'OA-2526-0125', customer: 'L&T Construction',
+            description: 'Check Valve 4" 150# WCB', qty: 8,
+            serials: ['84840','84841','84842','...+5'],
+            qa: 'Pass', hold: 'NO', holdReason: ''
+          },
+          {
+            oa: 'OA-2526-0126', customer: 'ONGC Hazira',
+            description: 'Ball Valve 2" 600# SS316', qty: 12,
+            serials: ['84850','84851','...+10'],
+            qa: 'Fail', hold: 'YES', holdReason: 'QA Fail — Seat leakage in 2 valves. Re-inspect pending. Ref: NCR-2526-045'
+          },
+          {
+            oa: 'OA-2526-0127', customer: 'NTPC Ramagundam',
+            description: 'Butterfly Valve 8" PN16 CI', qty: 6,
+            serials: ['84860','84861','84862','84863','84864','84865'],
+            qa: 'Pass', hold: 'NO', holdReason: ''
+          },
+          {
+            oa: 'OA-2526-0128', customer: 'HPCL Vizag',
+            description: 'Pressure Relief Valve 1" SS', qty: 3,
+            serials: ['84870','84871','84872'],
+            qa: 'Pass', hold: 'YES', holdReason: 'Customer requested hold — delivery postponed to 05-Jun-2026 per email dated 20-May-2026'
+          },
+        ],
+        packingRows: [
+          { item:'VE-GV-6-150', desc:'Gate Valve 6" 150# WCB RF', qty:4, serials:'84818, 84819, 84820, 84821', grossWt:120, netWt:102, dims:'80×60×50' },
+          { item:'VE-GV-6-150', desc:'Gate Valve 6" 150# WCB RF', qty:6, serials:'84822, 84823, 84824, 84825, 84826, 84827', grossWt:150, netWt:128, dims:'100×60×50' },
+          { item:'VE-GLV-2-300', desc:'Globe Valve 2" 300# A105 RF', qty:5, serials:'84831, 84832, 84833, 84834, 84835', grossWt:65, netWt:54, dims:'60×40×40' },
+          { item:'VE-CHK-4-150', desc:'Check Valve 4" 150# WCB', qty:4, serials:'84840, 84841, 84842, 84843', grossWt:70, netWt:58, dims:'70×50×40' },
+          { item:'VE-CHK-4-150', desc:'Check Valve 4" 150# WCB', qty:4, serials:'84844, 84845, 84846, 84847', grossWt:45, netWt:43, dims:'70×50×40' },
+        ],
+        createDispatch(row) {
+          this.dispatchCreated = true;
+          setTimeout(() => this.dispatchCreated = false, 3000);
+        },
+        batchDispatch() {
+          alert('Batch Dispatch — select rows and confirm');
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

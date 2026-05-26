@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSSHPL ERP — Sign In</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#1e3a5f',
+              dark: '#152d4a',
+              deeper: '#0f2034',
+            },
+            sky: {
+              accent: '#0ea5e9',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .bg-industrial {
+      background: linear-gradient(135deg, #0f2034 0%, #1e3a5f 40%, #2d5282 70%, #334155 100%);
+    }
+    .gear-spin {
+      animation: gear-rotate 18s linear infinite;
+      transform-origin: center;
+    }
+    .gear-spin-rev {
+      animation: gear-rotate 12s linear infinite reverse;
+      transform-origin: center;
+    }
+    @keyframes gear-rotate {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    input:focus {
+      outline: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-industrial flex items-center justify-center p-4">
+
+  <div class="w-full max-w-5xl flex rounded-2xl overflow-hidden shadow-2xl min-h-[580px]">
+
+    <!-- ========== LEFT BRANDING PANEL ========== -->
+    <div class="hidden md:flex flex-col justify-between bg-navy-deeper bg-opacity-80 backdrop-blur-sm w-1/2 p-10 relative overflow-hidden border-r border-white border-opacity-10">
+
+      <!-- Background decorative gears -->
+      <div class="absolute -bottom-16 -left-16 opacity-10">
+        <svg width="260" height="260" viewBox="0 0 100 100" class="gear-spin">
+          <path d="M43.2 0h13.6l2 8.4a33 33 0 0 1 8 3.3l7.6-3.8 9.6 9.6-3.8 7.6a33 33 0 0 1 3.3 8l8.4 2v13.6l-8.4 2a33 33 0 0 1-3.3 8l3.8 7.6-9.6 9.6-7.6-3.8a33 33 0 0 1-8 3.3l-2 8.4H43.2l-2-8.4a33 33 0 0 1-8-3.3l-7.6 3.8-9.6-9.6 3.8-7.6a33 33 0 0 1-3.3-8L8 56.8V43.2l8.4-2a33 33 0 0 1 3.3-8l-3.8-7.6 9.6-9.6 7.6 3.8a33 33 0 0 1 8-3.3L43.2 0zm6.8 28a22 22 0 1 0 0 44 22 22 0 0 0 0-44z" fill="white"/>
+        </svg>
+      </div>
+      <div class="absolute -top-10 -right-10 opacity-8">
+        <svg width="180" height="180" viewBox="0 0 100 100" class="gear-spin-rev">
+          <path d="M43.2 0h13.6l2 8.4a33 33 0 0 1 8 3.3l7.6-3.8 9.6 9.6-3.8 7.6a33 33 0 0 1 3.3 8l8.4 2v13.6l-8.4 2a33 33 0 0 1-3.3 8l3.8 7.6-9.6 9.6-7.6-3.8a33 33 0 0 1-8 3.3l-2 8.4H43.2l-2-8.4a33 33 0 0 1-8-3.3l-7.6 3.8-9.6-9.6 3.8-7.6a33 33 0 0 1-3.3-8L8 56.8V43.2l8.4-2a33 33 0 0 1 3.3-8l-3.8-7.6 9.6-9.6 7.6 3.8a33 33 0 0 1 8-3.3L43.2 0zm6.8 28a22 22 0 1 0 0 44 22 22 0 0 0 0-44z" fill="white"/>
+        </svg>
+      </div>
+
+      <!-- Top logo area -->
+      <div>
+        <!-- Industrial gear + valve icon -->
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-16 h-16 rounded-xl bg-sky-accent bg-opacity-20 flex items-center justify-center border border-sky-400 border-opacity-30">
+            <svg width="38" height="38" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Gear body -->
+              <path d="M20.5 2h7l1.5 6.3a14 14 0 0 1 4.2 1.7l5.8-2.9 4.9 4.9-2.9 5.8a14 14 0 0 1 1.7 4.2L49 23.5v7l-6.3 1.5a14 14 0 0 1-1.7 4.2l2.9 5.8-4.9 4.9-5.8-2.9a14 14 0 0 1-4.2 1.7L27.5 52h-7l-1.5-6.3a14 14 0 0 1-4.2-1.7l-5.8 2.9-4.9-4.9 2.9-5.8a14 14 0 0 1-1.7-4.2L-1 30.5v-7l6.3-1.5a14 14 0 0 1 1.7-4.2L4.1 12l4.9-4.9 5.8 2.9a14 14 0 0 1 4.2-1.7L20.5 2z" fill="#0ea5e9" opacity="0.7"/>
+              <!-- Inner circle -->
+              <circle cx="24" cy="24" r="8" fill="#1e3a5f" stroke="#0ea5e9" stroke-width="1.5"/>
+              <!-- Valve handle cross -->
+              <line x1="24" y1="19" x2="24" y2="29" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="19" y1="24" x2="29" y2="24" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-white text-3xl font-black tracking-widest leading-none">MSSHPL</div>
+            <div class="text-sky-300 text-xs font-medium tracking-widest uppercase mt-1">Enterprise Resource Planning</div>
+          </div>
+        </div>
+
+        <h1 class="text-white text-xl font-semibold leading-snug mb-3">
+          Industrial Valve<br/>Manufacturing ERP
+        </h1>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          End-to-end digital operations platform for valve manufacturing —
+          from sales orders through production, quality, dispatch and MIS reporting.
+        </p>
+      </div>
+
+      <!-- Feature highlights -->
+      <div class="space-y-3 z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full bg-sky-accent bg-opacity-20 flex items-center justify-center flex-shrink-0">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="text-slate-300 text-sm">Full production order lifecycle management</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full bg-sky-accent bg-opacity-20 flex items-center justify-center flex-shrink-0">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="text-slate-300 text-sm">Multi-unit inventory &amp; subcontract tracking</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full bg-sky-accent bg-opacity-20 flex items-center justify-center flex-shrink-0">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="text-slate-300 text-sm">Real-time MIS dashboards &amp; dispatch invoicing</span>
+        </div>
+      </div>
+
+      <!-- Footer branding -->
+      <div class="text-slate-500 text-xs mt-6">
+        Powered by Veeyes Engineering &nbsp;·&nbsp; v3.0
+      </div>
+    </div>
+
+    <!-- ========== RIGHT LOGIN PANEL ========== -->
+    <div class="w-full md:w-1/2 bg-white flex flex-col justify-center px-8 py-10 relative">
+
+      <div x-data="{
+        showPassword: false,
+        username: '',
+        password: '',
+        company: '',
+        remember: false,
+        loading: false,
+        error: '',
+        submit() {
+          if (!this.username || !this.password || !this.company) {
+            this.error = 'Please fill in all fields.';
+            return;
+          }
+          this.error = '';
+          this.loading = true;
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
+        }
+      }">
+
+        <!-- Form header -->
+        <div class="mb-8">
+          <!-- Mobile logo (shown only on small screens) -->
+          <div class="flex items-center gap-3 mb-6 md:hidden">
+            <div class="w-10 h-10 rounded-lg bg-navy flex items-center justify-center">
+              <span class="text-white font-black text-sm">M</span>
+            </div>
+            <span class="text-navy font-black text-xl tracking-widest">MSSHPL</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800">Sign In to ERP</h2>
+          <p class="text-slate-500 text-sm mt-1">Enter your credentials to continue</p>
+        </div>
+
+        <!-- Error alert -->
+        <div x-show="error" x-transition class="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm flex items-center gap-2">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span x-text="error"></span>
+        </div>
+
+        <!-- Username -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Username</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input
+              type="text"
+              x-model="username"
+              placeholder="e.g. sujatha.admin"
+              class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition"
+              @keydown.enter="submit()"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              x-model="password"
+              placeholder="Enter your password"
+              class="w-full pl-10 pr-10 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition"
+              @keydown.enter="submit()"
+            />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
+              tabindex="-1"
+            >
+              <!-- Eye open -->
+              <svg x-show="!showPassword" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <!-- Eye closed -->
+              <svg x-show="showPassword" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Company -->
+        <div class="mb-5">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Company / Unit</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </span>
+            <select
+              x-model="company"
+              class="w-full pl-10 pr-8 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-800 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition appearance-none bg-white"
+            >
+              <option value="">— Select Company / Unit —</option>
+              <option value="unit1">MSSHPL — Unit 1</option>
+              <option value="unit2">MSSHPL — Unit 2</option>
+              <option value="veeyes">Veeyes Engineering</option>
+            </select>
+            <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Remember me -->
+        <div class="flex items-center gap-2 mb-6">
+          <input
+            id="remember"
+            type="checkbox"
+            x-model="remember"
+            class="w-4 h-4 rounded border-slate-300 text-sky-500 focus:ring-sky-300 cursor-pointer"
+          />
+          <label for="remember" class="text-sm text-slate-600 cursor-pointer select-none">Remember me on this device</label>
+        </div>
+
+        <!-- Sign In button -->
+        <button
+          @click="submit()"
+          :disabled="loading"
+          class="w-full py-3 rounded-lg font-semibold text-white text-sm transition-all duration-200 focus:ring-4 focus:ring-sky-200 flex items-center justify-center gap-2"
+          :class="loading ? 'bg-sky-400 cursor-not-allowed' : 'bg-sky-500 hover:bg-sky-600 active:scale-[0.98]'"
+          style="background-color: #0ea5e9;"
+          onmouseover="if(!this.disabled) this.style.backgroundColor='#0284c7'"
+          onmouseout="if(!this.disabled) this.style.backgroundColor='#0ea5e9'"
+        >
+          <svg x-show="loading" class="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+          <span x-text="loading ? 'Signing in...' : 'Sign In'"></span>
+          <svg x-show="!loading" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+
+        <!-- Forgot password link -->
+        <div class="text-center mt-4">
+          <a href="#" class="text-sm text-sky-600 hover:text-sky-800 transition">Forgot password? Contact IT Admin</a>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+          <p class="text-slate-400 text-xs">MSSHPL ERP v3.0 &nbsp;|&nbsp; &copy; 2026 Veeyes Engineering</p>
+          <p class="text-slate-300 text-xs mt-1">Authorized personnel only. All access is logged.</p>
+        </div>
+
+      </div><!-- end x-data -->
+    </div><!-- end right panel -->
+  </div><!-- end card -->
+
+</body>
+</html>

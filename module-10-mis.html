@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIS & Reports — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    body { font-size: 13px; }
+    .tab-btn { transition: all .15s; }
+    .tab-btn.active { border-bottom: 2px solid #0ea5e9; color: #0ea5e9; font-weight: 600; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; padding: 9px 14px; color: #cbd5e1; border-radius: 4px; text-decoration: none; transition: background .15s; font-size: 13px; }
+    .sidebar-link:hover { background: rgba(14,165,233,.2); color: #fff; }
+    .sidebar-link.active-module { background: #0ea5e9; color: #fff; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
+    .kpi-card { border-radius: 12px; padding: 16px 20px; position: relative; overflow: hidden; }
+    .kpi-card::after { content:''; position:absolute; right:-20px; top:-20px; width:80px; height:80px; border-radius:50%; opacity:.12; }
+    .report-category { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+  </style>
+</head>
+<body class="bg-[#f8fafc]">
+
+<!-- TOP NAVBAR -->
+<nav class="fixed top-0 left-0 right-0 h-12 bg-[#1e3a5f] flex items-center justify-between px-4 z-50 shadow-md">
+  <a href="dashboard.html" class="text-white font-bold text-sm tracking-wide hover:text-sky-300">MSSHPL ERP <span class="text-[#0ea5e9]">|</span> Veeyes Engineering</span>
+  <div class="flex items-center gap-4 text-sm text-slate-200">
+    <span class="font-medium">Sujatha Admin</span>
+    <a href="#" class="text-[#0ea5e9] hover:underline">Logout</a>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside class="fixed top-12 left-0 bottom-0 w-52 bg-[#1a3050] z-40 overflow-y-auto py-3 shadow-lg">
+  <a href="dashboard.html" class="sidebar-link" style="background:#0f2840;border-bottom:1px solid rgba(255,255,255,0.08);">🏠 Home / Dashboard</a>
+  <a href="module-1-admin.html"      class="sidebar-link">🔐 Admin</a>
+  <a href="module-2-masters.html"    class="sidebar-link">📋 Masters</a>
+  <a href="module-3-sales.html"      class="sidebar-link">📦 Sales</a>
+  <a href="module-4-purchase.html"   class="sidebar-link">🛒 Purchase</a>
+  <a href="module-5-production.html" class="sidebar-link">⚙️ Production</a>
+  <a href="module-6-quality.html"    class="sidebar-link">✅ Quality</a>
+  <a href="module-7-dispatch.html"   class="sidebar-link">🚚 Dispatch</a>
+  <a href="module-8-subcontract.html" class="sidebar-link">🔧 Subcontract</a>
+  <a href="module-9-inventory.html"  class="sidebar-link">📊 Inventory</a>
+  <a href="module-10-mis.html"       class="sidebar-link active-module">📈 MIS</a>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="ml-52 mt-12 p-4 min-h-screen"
+  x-data="{
+    activeTab: 'dashboard',
+    fy: '2025-26',
+    month: 'May 2026',
+    showReportModal: false,
+    reportModalTitle: '',
+    openSections: { sales: true, production: true, purchase: true, quality: true },
+    pendingFilter: { customer: '', status: '', overdue: false },
+    shortageMonth: 'May 2026',
+
+    pendingOrders: [
+      { oa:'OA-2526-0089', customer:'BHEL',  valve:'Gate Valve',  size:'6in/150#', ordered:10, dispatched:10, balance:0,  oaDate:'Jan-26', dueDate:'Mar-26', delay:0,   status:'COMPLETE' },
+      { oa:'OA-2526-0101', customer:'NTPC',  valve:'Globe Valve', size:'2in/300#', ordered:5,  dispatched:0,  balance:5,  oaDate:'Feb-26', dueDate:'Apr-26', delay:52,  status:'OVERDUE' },
+      { oa:'OA-2526-0112', customer:'IOCL',  valve:'Check Valve', size:'4in/150#', ordered:8,  dispatched:4,  balance:4,  oaDate:'Mar-26', dueDate:'Jun-26', delay:0,   status:'IN PROGRESS' },
+      { oa:'OA-2526-0123', customer:'BHEL',  valve:'Gate Valve',  size:'6in/150#', ordered:10, dispatched:0,  balance:10, oaDate:'Apr-26', dueDate:'Sep-26', delay:0,   status:'IN PRODUCTION' },
+      { oa:'OA-2526-0128', customer:'ONGC',  valve:'Ball Valve',  size:'3in/300#', ordered:6,  dispatched:2,  balance:4,  oaDate:'Apr-26', dueDate:'Jul-26', delay:0,   status:'IN PROGRESS' },
+      { oa:'OA-2526-0134', customer:'L&T',   valve:'Gate Valve',  size:'8in/150#', ordered:4,  dispatched:0,  balance:4,  oaDate:'Apr-26', dueDate:'May-26', delay:8,   status:'OVERDUE' },
+      { oa:'OA-2526-0138', customer:'HPCL',  valve:'Globe Valve', size:'1in/150#', ordered:12, dispatched:6,  balance:6,  oaDate:'May-26', dueDate:'Aug-26', delay:0,   status:'IN PROGRESS' },
+      { oa:'OA-2526-0141', customer:'BHEL',  valve:'Check Valve', size:'2in/600#', ordered:8,  dispatched:0,  balance:8,  oaDate:'May-26', dueDate:'Oct-26', delay:0,   status:'ORDER ACCEPTED' },
+      { oa:'OA-2526-0145', customer:'NTPC',  valve:'Gate Valve',  size:'10in/300#',ordered:3,  dispatched:0,  balance:3,  oaDate:'May-26', dueDate:'Nov-26', delay:0,   status:'IN PRODUCTION' },
+      { oa:'OA-2526-0149', customer:'IOCL',  valve:'Ball Valve',  size:'6in/150#', ordered:5,  dispatched:5,  balance:0,  oaDate:'Jan-26', dueDate:'Apr-26', delay:0,   status:'COMPLETE' },
+      { oa:'OA-2526-0152', customer:'L&T',   valve:'Globe Valve', size:'3in/150#', ordered:10, dispatched:3,  balance:7,  oaDate:'Mar-26', dueDate:'May-26', delay:14,  status:'OVERDUE' },
+      { oa:'OA-2526-0155', customer:'GAIL',  valve:'Check Valve', size:'4in/300#', ordered:6,  dispatched:0,  balance:6,  oaDate:'May-26', dueDate:'Aug-26', delay:0,   status:'ORDER ACCEPTED' },
+      { oa:'OA-2526-0158', customer:'ONGC',  valve:'Gate Valve',  size:'6in/600#', ordered:4,  dispatched:1,  balance:3,  oaDate:'Apr-26', dueDate:'Jun-26', delay:0,   status:'IN PROGRESS' },
+      { oa:'OA-2526-0161', customer:'BHEL',  valve:'Ball Valve',  size:'2in/150#', ordered:15, dispatched:0,  balance:15, oaDate:'May-26', dueDate:'Dec-26', delay:0,   status:'IN PRODUCTION' },
+      { oa:'OA-2526-0164', customer:'HPCL',  valve:'Globe Valve', size:'1.5in/300#',ordered:8, dispatched:0,  balance:8,  oaDate:'May-26', dueDate:'May-26', delay:3,   status:'OVERDUE' }
+    ],
+
+    shortages: [
+      { oa:'OA-2526-0101', customer:'NTPC',  valve:'Globe Valve 2in', component:'Body CF8M 2in',         required:5,  inStock:0,  onOrder:0,  shortage:5  },
+      { oa:'OA-2526-0101', customer:'NTPC',  valve:'Globe Valve 2in', component:'Stem SS316 2in',         required:5,  inStock:3,  onOrder:0,  shortage:2  },
+      { oa:'OA-2526-0112', customer:'IOCL',  valve:'Check Valve 4in', component:'Seat Ring SS316 4in',    required:4,  inStock:1,  onOrder:3,  shortage:0  },
+      { oa:'OA-2526-0123', customer:'BHEL',  valve:'Gate Valve 6in',  component:'Gland Packing 6in',      required:10, inStock:5,  onOrder:3,  shortage:2  },
+      { oa:'OA-2526-0134', customer:'L&T',   valve:'Gate Valve 8in',  component:'Body Casting WCB 8in',   required:4,  inStock:2,  onOrder:0,  shortage:2  },
+      { oa:'OA-2526-0134', customer:'L&T',   valve:'Gate Valve 8in',  component:'Bonnet WCB 8in',         required:4,  inStock:0,  onOrder:2,  shortage:2  },
+      { oa:'OA-2526-0145', customer:'NTPC',  valve:'Gate Valve 10in', component:'Body Casting WCB 10in',  required:3,  inStock:0,  onOrder:0,  shortage:3  },
+      { oa:'OA-2526-0161', customer:'BHEL',  valve:'Ball Valve 2in',  component:'Ball SS316 2in',         required:15, inStock:12, onOrder:5,  shortage:0  }
+    ],
+
+    reports: {
+      sales: [
+        { name:'OA Abstract',            desc:'Summary of all Order Acknowledgements with status',        icon:'📋' },
+        { name:'Pending Orders Report',  desc:'Complete list of pending orders with aging analysis',      icon:'⏳' },
+        { name:'Sales Value Report',     desc:'Month-wise and customer-wise sales value analysis',        icon:'💰' },
+        { name:'Customer-wise Dispatch', desc:'Dispatch summary by customer for selected period',         icon:'🚚' }
+      ],
+      production: [
+        { name:'Job Card Print',             desc:'Individual job card with operations and material list', icon:'🔧' },
+        { name:'Daily Production Report',    desc:'Day-wise production output and work-in-progress',      icon:'📅' },
+        { name:'Monthly Production Summary', desc:'Month-wise production summary by valve type',          icon:'📊' },
+        { name:'Plan vs Actual Report',      desc:'Planned vs actual completion analysis for OAs',        icon:'📈' }
+      ],
+      purchase: [
+        { name:'PO Print',             desc:'Purchase order document for supplier',                       icon:'📄' },
+        { name:'GRN Summary',          desc:'Goods receipt note summary for selected period',             icon:'📦' },
+        { name:'Vendor Rating Report', desc:'Supplier performance rating based on delivery and quality',  icon:'⭐' },
+        { name:'Pending PO Report',    desc:'Open purchase orders awaiting delivery',                     icon:'🛒' }
+      ],
+      quality: [
+        { name:'NCR Status Report',           desc:'Non-conformance report status and closure summary',       icon:'🚨' },
+        { name:'Hydro Test Certificate',      desc:'Hydraulic test certificate for individual valves',        icon:'💧' },
+        { name:'Calibration Status Report',   desc:'Instrument calibration due dates and status',            icon:'🔬' },
+        { name:'Material Test Certificate',   desc:'MTC for raw material with heat number and properties',   icon:'🧪' }
+      ]
+    }
+  }">
+
+  <!-- Page header -->
+  <div class="flex items-center justify-between mb-3">
+    <div>
+      <h1 class="text-lg font-bold text-[#1e3a5f]">📈 MIS & Reports</h1>
+      <p class="text-xs text-slate-500">Management information, analytics and report generation</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <select x-model="fy" class="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+        <option>2025-26</option>
+        <option>2024-25</option>
+      </select>
+      <select x-model="month" class="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+        <option>May 2026</option>
+        <option>Apr 2026</option>
+        <option>Mar 2026</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="card mb-4">
+    <div class="flex border-b border-slate-200 px-2 overflow-x-auto">
+      <template x-for="tab in [
+        {id:'dashboard',  label:'Summary Dashboard'},
+        {id:'pending',    label:'Pending Orders'},
+        {id:'shortage',   label:'Plan vs Shortage'},
+        {id:'reports',    label:'Report Launcher'}
+      ]" :key="tab.id">
+        <button
+          @click="activeTab = tab.id"
+          class="tab-btn px-5 py-3 text-sm whitespace-nowrap text-slate-500"
+          :class="activeTab === tab.id ? 'active' : 'hover:text-slate-700'"
+          x-text="tab.label">
+        </button>
+      </template>
+    </div>
+
+    <!-- ===================== TAB 1: SUMMARY DASHBOARD ===================== -->
+    <div x-show="activeTab === 'dashboard'" class="p-4">
+
+      <!-- KPI Row -->
+      <div class="grid grid-cols-5 gap-3 mb-5">
+
+        <!-- KPI 1 - Orders Received -->
+        <div class="kpi-card" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+          <div class="text-blue-100 text-xs mb-1 font-medium tracking-wide uppercase">Orders Received</div>
+          <div class="text-white text-2xl font-bold mb-0.5">₹4.2 Cr</div>
+          <div class="text-blue-200 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-white/20 px-1.5 py-0.5 rounded-full font-semibold">
+              ↑ 12% vs last month
+            </span>
+          </div>
+          <div class="absolute right-3 top-3 text-4xl opacity-20">📥</div>
+        </div>
+
+        <!-- KPI 2 - In Production -->
+        <div class="kpi-card" style="background: linear-gradient(135deg, #92400e 0%, #f59e0b 100%);">
+          <div class="text-amber-100 text-xs mb-1 font-medium tracking-wide uppercase">In Production</div>
+          <div class="text-white text-2xl font-bold mb-0.5">85 valves</div>
+          <div class="text-amber-200 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-white/20 px-1.5 py-0.5 rounded-full font-semibold">
+              23 customers
+            </span>
+          </div>
+          <div class="absolute right-3 top-3 text-4xl opacity-20">⚙️</div>
+        </div>
+
+        <!-- KPI 3 - Dispatched -->
+        <div class="kpi-card" style="background: linear-gradient(135deg, #065f46 0%, #10b981 100%);">
+          <div class="text-emerald-100 text-xs mb-1 font-medium tracking-wide uppercase">Dispatched This Month</div>
+          <div class="text-white text-2xl font-bold mb-0.5">₹68 L</div>
+          <div class="text-emerald-200 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-white/20 px-1.5 py-0.5 rounded-full font-semibold">
+              15 invoices
+            </span>
+          </div>
+          <div class="absolute right-3 top-3 text-4xl opacity-20">🚚</div>
+        </div>
+
+        <!-- KPI 4 - Overdue -->
+        <div class="kpi-card" style="background: linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%);">
+          <div class="text-red-100 text-xs mb-1 font-medium tracking-wide uppercase">Overdue Orders</div>
+          <div class="text-white text-2xl font-bold mb-0.5">5 OAs</div>
+          <div class="text-red-200 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-white/20 px-1.5 py-0.5 rounded-full font-semibold">
+              12 valves pending
+            </span>
+          </div>
+          <div class="absolute right-3 top-3 text-4xl opacity-20">⚠️</div>
+        </div>
+
+        <!-- KPI 5 - NCRs -->
+        <div class="kpi-card" style="background: linear-gradient(135deg, #7c2d12 0%, #f97316 100%);">
+          <div class="text-orange-100 text-xs mb-1 font-medium tracking-wide uppercase">Quality NCRs Open</div>
+          <div class="text-white text-2xl font-bold mb-0.5">3</div>
+          <div class="text-orange-200 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-white/20 px-1.5 py-0.5 rounded-full font-semibold">
+              Needs attention
+            </span>
+          </div>
+          <div class="absolute right-3 top-3 text-4xl opacity-20">🔍</div>
+        </div>
+
+      </div>
+
+      <!-- Chart + Customer Table row -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+
+        <!-- Bar Chart -->
+        <div class="col-span-2 card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-slate-700 text-sm">Monthly Sales vs Target (Apr–May 2026)</h3>
+            <div class="flex items-center gap-4 text-xs">
+              <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded" style="background:#1e3a5f"></span> Target</span>
+              <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded" style="background:#0ea5e9"></span> Actual</span>
+            </div>
+          </div>
+
+          <!-- SVG Bar Chart -->
+          <svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" class="w-full" style="height:200px;">
+            <!-- Y-axis labels -->
+            <text x="30" y="18" fill="#94a3b8" font-size="10" text-anchor="end">100L</text>
+            <text x="30" y="58" fill="#94a3b8" font-size="10" text-anchor="end">80L</text>
+            <text x="30" y="98" fill="#94a3b8" font-size="10" text-anchor="end">60L</text>
+            <text x="30" y="138" fill="#94a3b8" font-size="10" text-anchor="end">40L</text>
+            <text x="30" y="178" fill="#94a3b8" font-size="10" text-anchor="end">20L</text>
+
+            <!-- Grid lines -->
+            <line x1="35" y1="15" x2="510" y2="15" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="35" y1="55" x2="510" y2="55" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="35" y1="95" x2="510" y2="95" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="35" y1="135" x2="510" y2="135" stroke="#f1f5f9" stroke-width="1"/>
+            <line x1="35" y1="175" x2="510" y2="175" stroke="#f1f5f9" stroke-width="1"/>
+
+            <!-- Baseline -->
+            <line x1="35" y1="175" x2="510" y2="175" stroke="#e2e8f0" stroke-width="1.5"/>
+
+            <!-- === APRIL === -->
+            <!-- Target: 80L → height 80% of 160px = 128px, y = 175-128 = 47 -->
+            <rect x="80" y="47" width="40" height="128" fill="#1e3a5f" rx="3"/>
+            <!-- Actual: 75L → height 75% of 160px = 120px, y = 175-120 = 55 -->
+            <rect x="128" y="55" width="40" height="120" fill="#0ea5e9" rx="3"/>
+            <!-- Labels -->
+            <text x="100" y="42" fill="#1e3a5f" font-size="10" text-anchor="middle" font-weight="600">80L</text>
+            <text x="148" y="50" fill="#0ea5e9" font-size="10" text-anchor="middle" font-weight="600">75L</text>
+            <text x="114" y="192" fill="#64748b" font-size="11" text-anchor="middle" font-weight="500">April 2026</text>
+
+            <!-- === MAY === -->
+            <!-- Target: 90L → height 90% of 160px = 144px, y = 175-144 = 31 -->
+            <rect x="280" y="31" width="40" height="144" fill="#1e3a5f" rx="3"/>
+            <!-- Actual: 68L → height 68% of 160px = 108.8 ≈ 109px, y = 175-109 = 66 -->
+            <rect x="328" y="66" width="40" height="109" fill="#0ea5e9" rx="3" opacity="0.85"/>
+            <!-- Labels -->
+            <text x="300" y="26" fill="#1e3a5f" font-size="10" text-anchor="middle" font-weight="600">90L</text>
+            <text x="348" y="61" fill="#0ea5e9" font-size="10" text-anchor="middle" font-weight="600">68L</text>
+            <text x="314" y="192" fill="#64748b" font-size="11" text-anchor="middle" font-weight="500">May 2026</text>
+
+            <!-- Shortfall annotation for May -->
+            <line x1="370" y1="66" x2="420" y2="40" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="422" y="38" fill="#ef4444" font-size="9">↓ Below target</text>
+          </svg>
+        </div>
+
+        <!-- Customer Dispatch Table -->
+        <div class="card p-4">
+          <h3 class="font-semibold text-slate-700 text-sm mb-3">Top Customer Dispatches <span class="text-xs font-normal text-slate-400">(May 2026)</span></h3>
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="text-slate-500 border-b border-slate-200">
+                <th class="pb-1 text-left font-semibold">Customer</th>
+                <th class="pb-1 text-right font-semibold">Inv.</th>
+                <th class="pb-1 text-right font-semibold">Value</th>
+                <th class="pb-1 text-right font-semibold">OAs Done</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-1.5 font-semibold text-slate-700">BHEL</td>
+                <td class="py-1.5 text-right text-slate-600">3</td>
+                <td class="py-1.5 text-right text-slate-700 font-semibold">₹28.5L</td>
+                <td class="py-1.5 text-right"><span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">4</span></td>
+              </tr>
+              <tr>
+                <td class="py-1.5 font-semibold text-slate-700">NTPC</td>
+                <td class="py-1.5 text-right text-slate-600">2</td>
+                <td class="py-1.5 text-right text-slate-700 font-semibold">₹18.2L</td>
+                <td class="py-1.5 text-right"><span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">3</span></td>
+              </tr>
+              <tr>
+                <td class="py-1.5 font-semibold text-slate-700">IOCL</td>
+                <td class="py-1.5 text-right text-slate-600">1</td>
+                <td class="py-1.5 text-right text-slate-700 font-semibold">₹12.3L</td>
+                <td class="py-1.5 text-right"><span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">2</span></td>
+              </tr>
+              <tr>
+                <td class="py-1.5 font-semibold text-slate-700">L&amp;T</td>
+                <td class="py-1.5 text-right text-slate-600">2</td>
+                <td class="py-1.5 text-right text-slate-700 font-semibold">₹5.8L</td>
+                <td class="py-1.5 text-right"><span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">3</span></td>
+              </tr>
+              <tr>
+                <td class="py-1.5 font-semibold text-slate-700">ONGC</td>
+                <td class="py-1.5 text-right text-slate-600">1</td>
+                <td class="py-1.5 text-right text-slate-700 font-semibold">₹3.6L</td>
+                <td class="py-1.5 text-right"><span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">1</span></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="border-t border-slate-200 font-semibold">
+                <td class="pt-1.5 text-slate-700">Total</td>
+                <td class="pt-1.5 text-right text-slate-600">9</td>
+                <td class="pt-1.5 text-right text-[#1e3a5f]">₹68.4L</td>
+                <td class="pt-1.5 text-right text-slate-600">13</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Module Activity Mini Stats -->
+      <div class="card p-4">
+        <h3 class="font-semibold text-slate-700 text-sm mb-3">Module Activity — May 2026</h3>
+        <div class="grid grid-cols-6 gap-3">
+          <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <div class="text-xl font-bold text-blue-700">18</div>
+            <div class="text-xs text-blue-600 mt-0.5 font-medium">GRNs This Month</div>
+          </div>
+          <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
+            <div class="text-xl font-bold text-purple-700">12</div>
+            <div class="text-xs text-purple-600 mt-0.5 font-medium">POs Issued</div>
+          </div>
+          <div class="text-center p-3 bg-red-50 rounded-lg border border-red-100">
+            <div class="text-xl font-bold text-red-700">5</div>
+            <div class="text-xs text-red-600 mt-0.5 font-medium">NCRs Raised</div>
+          </div>
+          <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+            <div class="text-xl font-bold text-emerald-700">2</div>
+            <div class="text-xs text-emerald-600 mt-0.5 font-medium">NCRs Closed</div>
+          </div>
+          <div class="text-center p-3 bg-cyan-50 rounded-lg border border-cyan-100">
+            <div class="text-xl font-bold text-cyan-700">23</div>
+            <div class="text-xs text-cyan-600 mt-0.5 font-medium">Hydro Tests</div>
+          </div>
+          <div class="text-center p-3 bg-amber-50 rounded-lg border border-amber-100">
+            <div class="text-xl font-bold text-amber-700">5</div>
+            <div class="text-xs text-amber-600 mt-0.5 font-medium">Calibrations Due</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 2: PENDING ORDERS ===================== -->
+    <div x-show="activeTab === 'pending'" class="p-4">
+
+      <!-- Filter Bar -->
+      <div class="flex flex-wrap gap-2 mb-4 items-end">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Customer</label>
+          <select x-model="pendingFilter.customer" class="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+            <option value="">All Customers</option>
+            <option>BHEL</option>
+            <option>NTPC</option>
+            <option>IOCL</option>
+            <option>L&T</option>
+            <option>ONGC</option>
+            <option>HPCL</option>
+            <option>GAIL</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">OA Status</label>
+          <select x-model="pendingFilter.status" class="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+            <option value="">All Status</option>
+            <option>OVERDUE</option>
+            <option>IN PRODUCTION</option>
+            <option>IN PROGRESS</option>
+            <option>ORDER ACCEPTED</option>
+            <option>COMPLETE</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 self-end pb-1.5">
+          <input type="checkbox" x-model="pendingFilter.overdue" id="overdueCheck" class="rounded" />
+          <label for="overdueCheck" class="text-xs text-slate-600">Show Overdue Only</label>
+        </div>
+        <button class="bg-[#0ea5e9] hover:bg-sky-600 text-white text-xs px-4 py-1.5 rounded transition">Search</button>
+        <button class="ml-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-1.5 rounded transition flex items-center gap-1">
+          ↓ Export Excel
+        </button>
+      </div>
+
+      <!-- Summary Bar -->
+      <div class="grid grid-cols-4 gap-3 mb-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+          <div class="text-lg font-bold text-blue-700">48 OAs</div>
+          <div class="text-xs text-blue-600">Total Pending</div>
+        </div>
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+          <div class="text-lg font-bold text-purple-700">185 Valves</div>
+          <div class="text-xs text-purple-600">Units Pending</div>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
+          <div class="text-lg font-bold text-slate-700">₹3.8 Cr</div>
+          <div class="text-xs text-slate-600">Order Value</div>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+          <div class="text-lg font-bold text-red-700">5 OAs</div>
+          <div class="text-xs text-red-600">Overdue</div>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="bg-[#1e3a5f] text-white">
+              <th class="px-2 py-2 text-left">OA No</th>
+              <th class="px-2 py-2 text-left">Customer</th>
+              <th class="px-2 py-2 text-left">Valve</th>
+              <th class="px-2 py-2 text-left">Size/Class</th>
+              <th class="px-2 py-2 text-right">Ordered</th>
+              <th class="px-2 py-2 text-right">Dispatched</th>
+              <th class="px-2 py-2 text-right">Balance</th>
+              <th class="px-2 py-2 text-center">OA Date</th>
+              <th class="px-2 py-2 text-center">Due Date</th>
+              <th class="px-2 py-2 text-center">Delay</th>
+              <th class="px-2 py-2 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="order in pendingOrders" :key="order.oa">
+              <tr class="border-b border-slate-100"
+                :class="{
+                  'bg-red-50': order.status === 'OVERDUE',
+                  'bg-slate-50 text-slate-400': order.status === 'COMPLETE',
+                  'hover:bg-slate-50': order.status !== 'OVERDUE' && order.status !== 'COMPLETE'
+                }">
+                <td class="px-2 py-1.5 font-mono text-[#0ea5e9]" x-text="order.oa"></td>
+                <td class="px-2 py-1.5 font-semibold text-slate-700" x-text="order.customer"></td>
+                <td class="px-2 py-1.5" x-text="order.valve"></td>
+                <td class="px-2 py-1.5 text-slate-500" x-text="order.size"></td>
+                <td class="px-2 py-1.5 text-right" x-text="order.ordered"></td>
+                <td class="px-2 py-1.5 text-right text-emerald-700 font-semibold" x-text="order.dispatched"></td>
+                <td class="px-2 py-1.5 text-right font-semibold" :class="order.balance > 0 ? 'text-slate-700' : 'text-slate-400'" x-text="order.balance"></td>
+                <td class="px-2 py-1.5 text-center text-slate-500" x-text="order.oaDate"></td>
+                <td class="px-2 py-1.5 text-center" :class="order.delay > 0 ? 'text-red-600 font-semibold' : 'text-slate-500'" x-text="order.dueDate"></td>
+                <td class="px-2 py-1.5 text-center">
+                  <span x-show="order.delay > 0" class="text-red-600 font-bold" x-text="order.delay + 'd'"></span>
+                  <span x-show="order.delay === 0" class="text-slate-400">—</span>
+                </td>
+                <td class="px-2 py-1.5 text-center">
+                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                    :class="{
+                      'bg-red-100 text-red-700':     order.status === 'OVERDUE',
+                      'bg-blue-100 text-blue-700':   order.status === 'IN PROGRESS',
+                      'bg-amber-100 text-amber-700': order.status === 'IN PRODUCTION',
+                      'bg-slate-200 text-slate-500': order.status === 'COMPLETE',
+                      'bg-purple-100 text-purple-700': order.status === 'ORDER ACCEPTED'
+                    }"
+                    x-text="order.status">
+                  </span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">Showing 15 orders · Overdue rows highlighted red · Completed orders shown at bottom in muted style</p>
+    </div>
+
+    <!-- ===================== TAB 3: PLAN VS SHORTAGE ===================== -->
+    <div x-show="activeTab === 'shortage'" class="p-4">
+
+      <!-- Filter -->
+      <div class="flex flex-wrap gap-2 mb-4 items-end">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Month</label>
+          <select x-model="shortageMonth" class="border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+            <option>May 2026</option>
+            <option>Jun 2026</option>
+          </select>
+        </div>
+        <button class="bg-[#0ea5e9] hover:bg-sky-600 text-white text-xs px-4 py-1.5 rounded transition">
+          Calculate Shortage
+        </button>
+        <div class="ml-auto flex gap-2">
+          <div class="bg-amber-50 border border-amber-200 rounded px-3 py-1.5 text-xs text-amber-700">
+            Total Shortage Items: <strong>8</strong>
+          </div>
+          <div class="bg-red-50 border border-red-200 rounded px-3 py-1.5 text-xs text-red-700">
+            Critical (0 in stock): <strong>2</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shortage Table -->
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="bg-[#1e3a5f] text-white">
+              <th class="px-3 py-2 text-left">OA No</th>
+              <th class="px-3 py-2 text-left">Customer</th>
+              <th class="px-3 py-2 text-left">Valve</th>
+              <th class="px-3 py-2 text-left">Component</th>
+              <th class="px-3 py-2 text-right">Required</th>
+              <th class="px-3 py-2 text-right">In Stock</th>
+              <th class="px-3 py-2 text-right">On Order</th>
+              <th class="px-3 py-2 text-right">Shortage</th>
+              <th class="px-3 py-2 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(row, i) in shortages" :key="i">
+              <tr class="border-b border-slate-100"
+                :class="{
+                  'bg-red-50':   row.inStock === 0 && row.shortage > 0,
+                  'bg-amber-50': row.shortage > 0 && row.inStock > 0,
+                  'hover:bg-slate-50': row.shortage === 0
+                }">
+                <td class="px-3 py-2 font-mono text-[#0ea5e9]" x-text="row.oa"></td>
+                <td class="px-3 py-2 font-semibold text-slate-700" x-text="row.customer"></td>
+                <td class="px-3 py-2 text-slate-600" x-text="row.valve"></td>
+                <td class="px-3 py-2 text-slate-600" x-text="row.component"></td>
+                <td class="px-3 py-2 text-right font-semibold" x-text="row.required"></td>
+                <td class="px-3 py-2 text-right font-semibold"
+                  :class="row.inStock === 0 ? 'text-red-600' : (row.inStock < row.required ? 'text-amber-600' : 'text-emerald-600')"
+                  x-text="row.inStock"></td>
+                <td class="px-3 py-2 text-right text-blue-600 font-semibold" x-text="row.onOrder"></td>
+                <td class="px-3 py-2 text-right">
+                  <span x-show="row.shortage > 0" class="font-bold text-red-600" x-text="row.shortage"></span>
+                  <span x-show="row.shortage === 0" class="text-emerald-600 font-semibold">NIL</span>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <button x-show="row.shortage > 0"
+                    class="bg-[#1e3a5f] hover:bg-[#163050] text-white text-xs px-2.5 py-1 rounded transition">
+                    Raise PR
+                  </button>
+                  <span x-show="row.shortage === 0" class="text-emerald-600 text-xs">✓ OK</span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">
+        <span class="inline-block w-3 h-3 bg-red-200 rounded mr-1"></span> Critical (0 stock) ·
+        <span class="inline-block w-3 h-3 bg-amber-200 rounded mr-1"></span> Partial shortage ·
+        <span class="inline-block w-3 h-3 bg-white border border-slate-200 rounded mr-1"></span> No shortage
+      </p>
+    </div>
+
+    <!-- ===================== TAB 4: REPORT LAUNCHER ===================== -->
+    <div x-show="activeTab === 'reports'" class="p-4">
+
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-slate-700">Report Catalog</h2>
+          <p class="text-xs text-slate-400">Select and generate any report. All reports support PDF and Excel export.</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="text-xs text-[#0ea5e9] hover:underline" @click="openSections = { sales:true, production:true, purchase:true, quality:true }">Expand All</button>
+          <span class="text-slate-300">|</span>
+          <button class="text-xs text-slate-500 hover:underline" @click="openSections = { sales:false, production:false, purchase:false, quality:false }">Collapse All</button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+
+        <!-- SALES REPORTS -->
+        <div class="report-category">
+          <button @click="openSections.sales = !openSections.sales"
+            class="w-full flex items-center justify-between px-4 py-3 bg-blue-50 border-b border-blue-200 text-left hover:bg-blue-100 transition">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">📦</span>
+              <span class="font-semibold text-blue-800 text-sm">Sales Reports</span>
+              <span class="text-xs text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full">4 reports</span>
+            </div>
+            <span class="text-blue-400 text-xs" x-text="openSections.sales ? '▲ Collapse' : '▼ Expand'"></span>
+          </button>
+          <div x-show="openSections.sales" x-transition class="divide-y divide-slate-100">
+            <template x-for="report in reports.sales" :key="report.name">
+              <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl" x-text="report.icon"></span>
+                  <div>
+                    <div class="font-semibold text-slate-700 text-xs" x-text="report.name"></div>
+                    <div class="text-xs text-slate-400 mt-0.5" x-text="report.desc"></div>
+                  </div>
+                </div>
+                <button @click="reportModalTitle = report.name; showReportModal = true"
+                  class="bg-[#0ea5e9] hover:bg-sky-600 text-white text-xs px-4 py-1.5 rounded transition whitespace-nowrap ml-4">
+                  Generate
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- PRODUCTION REPORTS -->
+        <div class="report-category">
+          <button @click="openSections.production = !openSections.production"
+            class="w-full flex items-center justify-between px-4 py-3 bg-amber-50 border-b border-amber-200 text-left hover:bg-amber-100 transition">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">⚙️</span>
+              <span class="font-semibold text-amber-800 text-sm">Production Reports</span>
+              <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">4 reports</span>
+            </div>
+            <span class="text-amber-400 text-xs" x-text="openSections.production ? '▲ Collapse' : '▼ Expand'"></span>
+          </button>
+          <div x-show="openSections.production" x-transition class="divide-y divide-slate-100">
+            <template x-for="report in reports.production" :key="report.name">
+              <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl" x-text="report.icon"></span>
+                  <div>
+                    <div class="font-semibold text-slate-700 text-xs" x-text="report.name"></div>
+                    <div class="text-xs text-slate-400 mt-0.5" x-text="report.desc"></div>
+                  </div>
+                </div>
+                <button @click="reportModalTitle = report.name; showReportModal = true"
+                  class="bg-[#0ea5e9] hover:bg-sky-600 text-white text-xs px-4 py-1.5 rounded transition whitespace-nowrap ml-4">
+                  Generate
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- PURCHASE REPORTS -->
+        <div class="report-category">
+          <button @click="openSections.purchase = !openSections.purchase"
+            class="w-full flex items-center justify-between px-4 py-3 bg-purple-50 border-b border-purple-200 text-left hover:bg-purple-100 transition">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🛒</span>
+              <span class="font-semibold text-purple-800 text-sm">Purchase Reports</span>
+              <span class="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">4 reports</span>
+            </div>
+            <span class="text-purple-400 text-xs" x-text="openSections.purchase ? '▲ Collapse' : '▼ Expand'"></span>
+          </button>
+          <div x-show="openSections.purchase" x-transition class="divide-y divide-slate-100">
+            <template x-for="report in reports.purchase" :key="report.name">
+              <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl" x-text="report.icon"></span>
+                  <div>
+                    <div class="font-semibold text-slate-700 text-xs" x-text="report.name"></div>
+                    <div class="text-xs text-slate-400 mt-0.5" x-text="report.desc"></div>
+                  </div>
+                </div>
+                <button @click="reportModalTitle = report.name; showReportModal = true"
+                  class="bg-[#0ea5e9] hover:bg-sky-600 text-white text-xs px-4 py-1.5 rounded transition whitespace-nowrap ml-4">
+                  Generate
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- QUALITY REPORTS -->
+        <div class="report-category">
+          <button @click="openSections.quality = !openSections.quality"
+            class="w-full flex items-center justify-between px-4 py-3 bg-emerald-50 border-b border-emerald-200 text-left hover:bg-emerald-100 transition">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">✅</span>
+              <span class="font-semibold text-emerald-800 text-sm">Quality Reports</span>
+              <span class="text-xs text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">4 reports</span>
+            </div>
+            <span class="text-emerald-500 text-xs" x-text="openSections.quality ? '▲ Collapse' : '▼ Expand'"></span>
+          </button>
+          <div x-show="openSections.quality" x-transition class="divide-y divide-slate-100">
+            <template x-for="report in reports.quality" :key="report.name">
+              <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl" x-text="report.icon"></span>
+                  <div>
+                    <div class="font-semibold text-slate-700 text-xs" x-text="report.name"></div>
+                    <div class="text-xs text-slate-400 mt-0.5" x-text="report.desc"></div>
+                  </div>
+                </div>
+                <button @click="reportModalTitle = report.name; showReportModal = true"
+                  class="bg-[#0ea5e9] hover:bg-sky-600 text-white text-xs px-4 py-1.5 rounded transition whitespace-nowrap ml-4">
+                  Generate
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+      </div><!-- end space-y-3 -->
+
+      <!-- ===== REPORT FILTER MODAL ===== -->
+      <div x-show="showReportModal" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showReportModal = false">
+        <div class="bg-white rounded-xl shadow-2xl w-[480px] overflow-hidden">
+          <!-- Modal Header -->
+          <div class="bg-[#1e3a5f] px-5 py-4 flex items-center justify-between">
+            <div>
+              <div class="text-white font-bold text-sm" x-text="reportModalTitle"></div>
+              <div class="text-slate-300 text-xs">Set filters and generate report</div>
+            </div>
+            <button @click="showReportModal = false" class="text-slate-300 hover:text-white text-lg leading-none">&times;</button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="p-5">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">Date From</label>
+                <input type="text" value="01-May-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">Date To</label>
+                <input type="text" value="26-May-2026" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">Customer</label>
+                <select class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+                  <option>All Customers</option>
+                  <option>BHEL</option>
+                  <option>NTPC</option>
+                  <option>IOCL</option>
+                  <option>L&T</option>
+                  <option>ONGC</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">Financial Year</label>
+                <select class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]">
+                  <option>2025-26</option>
+                  <option>2024-25</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="block text-xs text-slate-500 mb-1">Additional Filter / Notes</label>
+              <input type="text" placeholder="e.g. OA range, item code, valve type…" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]" />
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-500 flex items-center gap-2 mb-4">
+              ℹ️ Report will be generated for the selected period and filters. Large datasets may take a few seconds.
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+            <button @click="showReportModal = false" class="text-xs px-4 py-1.5 border border-slate-300 rounded hover:bg-slate-100 transition">Cancel</button>
+            <div class="flex gap-2">
+              <button @click="showReportModal = false" class="flex items-center gap-1 text-xs px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition">
+                ↓ Export Excel
+              </button>
+              <button @click="showReportModal = false" class="flex items-center gap-1 text-xs px-4 py-1.5 bg-[#1e3a5f] hover:bg-[#163050] text-white rounded transition">
+                📄 Generate PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div><!-- end modal -->
+
+    </div><!-- end reports tab -->
+
+  </div><!-- end card -->
+</main>
+
+</body>
+</html>

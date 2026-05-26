@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quality Assurance — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    body { background: #f8fafc; }
+    .table-crisp { border-collapse: collapse; width: 100%; }
+    .table-crisp th { background: #f1f5f9; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #475569; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap; }
+    .table-crisp td { font-size: 0.8rem; padding: 7px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    .table-crisp tr:hover td { background: #f8fafc; }
+    .table-crisp tr:nth-child(even) td { background: #fafbfc; }
+    .table-crisp tr:nth-child(even):hover td { background: #f1f5f9; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 0.82rem; color: #94a3b8; border-radius: 6px; margin: 1px 8px; transition: background 0.15s, color 0.15s; text-decoration: none; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .sidebar-link.active { background: #0ea5e9; color: #fff; font-weight: 600; }
+    .tab-btn { padding: 8px 16px; font-size: 0.82rem; font-weight: 500; border-bottom: 2px solid transparent; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .tab-btn.active { border-bottom-color: #0ea5e9; color: #0ea5e9; font-weight: 600; }
+    .tab-btn:hover:not(.active) { color: #334155; }
+    .badge-green  { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#dcfce7; color:#15803d; }
+    .badge-amber  { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#fef9c3; color:#b45309; }
+    .badge-red    { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#fee2e2; color:#b91c1c; }
+    .badge-gray   { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#f1f5f9; color:#475569; }
+    .badge-blue   { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#dbeafe; color:#1d4ed8; }
+    .form-label { font-size: 0.72rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; display: block; }
+    .form-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 0.82rem; color: #1e293b; background: #fff; outline: none; transition: border-color 0.15s; }
+    .form-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 2px rgba(14,165,233,0.15); }
+    .btn-primary { background: #0ea5e9; color: #fff; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-primary:hover { background: #0284c7; }
+    .btn-secondary { background: #fff; color: #334155; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: 1px solid #cbd5e1; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-secondary:hover { background: #f1f5f9; }
+    .btn-navy { background: #1e3a5f; color: #fff; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-navy:hover { background: #1a3050; }
+    .btn-green { background: #16a34a; color: #fff; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-green:hover { background: #15803d; }
+    .stat-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 16px 20px; }
+    .section-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 16px; margin-bottom: 16px; }
+    .overdue-row td { background: #fff5f5 !important; }
+    .overdue-row { border-left: 4px solid #ef4444; }
+    .due-row td { background: #fffbeb !important; }
+    .radio-group { display: flex; gap: 12px; align-items: center; }
+    .radio-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: #334155; cursor: pointer; }
+  </style>
+</head>
+<body class="font-sans" x-data="{ activeTab: 'qap', showNCRForm: false }">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 flex items-center justify-between px-4 z-50 shadow-md" style="background:#1e3a5f;">
+    <div class="flex items-center gap-2">
+      <a href="dashboard.html" class="text-white font-bold text-sm tracking-wide hover:text-sky-300">MSSHPL ERP</span>
+      <span class="text-sky-300 text-xs font-medium ml-1">| Veeyes Engineering</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-sky-200 text-xs">👤 Sujatha</span>
+      <span class="text-xs px-2 py-1 rounded bg-sky-800 text-sky-200 font-medium">Admin</span>
+      <button class="text-xs text-red-300 hover:text-red-200 font-medium ml-1">Logout</button>
+    </div>
+  </nav>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="fixed top-12 left-0 bottom-0 w-52 overflow-y-auto z-40 shadow-lg" style="background:#1a3050;">
+    <div class="pt-3 pb-4">
+      <p class="text-xs text-slate-500 font-semibold px-4 py-2 uppercase tracking-widest">Modules</p>
+      <a href="dashboard.html" class="sidebar-link" style="background:#0f2840;border-bottom:1px solid rgba(255,255,255,0.08);">🏠 Home / Dashboard</a>
+  <a href="module-1-admin.html"      class="sidebar-link">🔐 Admin</a>
+      <a href="module-2-masters.html"    class="sidebar-link">📋 Masters</a>
+      <a href="module-3-sales.html"      class="sidebar-link">📦 Sales</a>
+      <a href="module-4-purchase.html"   class="sidebar-link">🛒 Purchase</a>
+      <a href="module-5-production.html" class="sidebar-link">⚙️ Production</a>
+      <a href="module-6-quality.html"    class="sidebar-link active">✅ Quality</a>
+      <a href="module-7-dispatch.html"   class="sidebar-link">🚚 Dispatch</a>
+      <a href="module-8-subcontract.html"class="sidebar-link">🔧 Subcontract</a>
+      <a href="module-9-inventory.html"  class="sidebar-link">📊 Inventory</a>
+      <a href="module-10-mis.html"       class="sidebar-link">📈 MIS</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 p-4 min-h-screen">
+
+    <!-- Page header -->
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-lg font-bold text-slate-800">Quality Assurance</h1>
+        <p class="text-xs text-slate-500 mt-0.5">QAP, NCR, Hydro Test, Calibration &amp; Customer Rejections</p>
+      </div>
+      <span class="text-xs text-slate-400">26-May-2026 | FY 2025-26</span>
+    </div>
+
+    <!-- TABS -->
+    <div class="bg-white rounded-t-lg shadow-sm border-b border-slate-200 flex overflow-x-auto">
+      <button class="tab-btn" :class="{ active: activeTab === 'qap' }"        @click="activeTab='qap'">QAP</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'ncr' }"        @click="activeTab='ncr'">NCR</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'hydrotest' }"  @click="activeTab='hydrotest'">Hydro Test</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'calibration' }" @click="activeTab='calibration'">Calibration</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'custrej' }"    @click="activeTab='custrej'">Customer Rejection</button>
+    </div>
+
+    <!-- ===== TAB 1: QAP ===== -->
+    <div x-show="activeTab === 'qap'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action bar -->
+        <div class="flex gap-2 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ New QAP</button>
+          <button class="btn-navy">💾 Save</button>
+          <button class="btn-secondary">🖨️ Print QAP</button>
+          <div class="ml-auto">
+            <input class="form-input w-52" placeholder="🔍 Search QAP…" />
+          </div>
+        </div>
+        <!-- QAP header form -->
+        <div class="grid grid-cols-4 gap-x-6 gap-y-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <div>
+            <label class="form-label">QAP No</label>
+            <input class="form-input font-mono font-semibold text-sky-700" value="QAP-2526-0023" />
+          </div>
+          <div>
+            <label class="form-label">OA No</label>
+            <input class="form-input font-mono" value="OA-2526-0123" />
+          </div>
+          <div class="col-span-2">
+            <label class="form-label">Valve Description</label>
+            <input class="form-input font-medium" value="Gate Valve 6&quot; 150# WCB RF BB OS&amp;Y" />
+          </div>
+          <div>
+            <label class="form-label">Customer</label>
+            <input class="form-input font-semibold" value="BHEL" />
+          </div>
+          <div>
+            <label class="form-label">Standard</label>
+            <input class="form-input" value="ASME B16.34" />
+          </div>
+          <div>
+            <label class="form-label">Class</label>
+            <input class="form-input" value="150#" />
+          </div>
+          <div>
+            <label class="form-label">Trim / End</label>
+            <input class="form-input" value="13% Cr / RF" />
+          </div>
+          <div>
+            <label class="form-label">Rev No</label>
+            <input class="form-input" value="Rev 0" />
+          </div>
+          <div>
+            <label class="form-label">Prepared By</label>
+            <input class="form-input" value="Priya R" />
+          </div>
+          <div>
+            <label class="form-label">Approved By</label>
+            <input class="form-input" value="Rajan M" />
+          </div>
+          <div>
+            <label class="form-label">Status</label>
+            <div class="mt-1"><span class="badge-amber text-sm px-3 py-1">Pending Approval</span></div>
+          </div>
+        </div>
+        <!-- QAP checklist table -->
+        <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Inspection &amp; Test Plan</h3>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Sr</th><th>Inspection Stage</th><th>Test / Check</th><th>Acceptance Criteria</th>
+                <th>Frequency</th><th>Method</th><th>Witness</th><th>Record</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td class="font-medium">Raw Material</td>
+                <td>Chemical Analysis</td>
+                <td class="text-xs">As per ASTM A216 WCB</td>
+                <td>100%</td><td>Lab Test</td>
+                <td><span class="badge-red text-xs">Third Party</span></td>
+                <td>MTC</td>
+                <td><span class="badge-amber">Required</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td class="font-medium">Dimensional</td>
+                <td>Body Dimensions</td>
+                <td class="text-xs">As per Drawing VE-GV-BODY-C1</td>
+                <td>100%</td><td>CMM / Vernier</td>
+                <td><span class="badge-blue text-xs">Customer</span></td>
+                <td>DIM Report</td>
+                <td><span class="badge-amber">Pending</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td class="font-medium">Visual</td>
+                <td>Surface Finish</td>
+                <td class="text-xs">Ra 3.2 µm (125 µin)</td>
+                <td>100%</td><td>Visual / Comparator</td>
+                <td><span class="badge-gray text-xs">QA</span></td>
+                <td>QA Report</td>
+                <td><span class="badge-green">Done</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td class="font-medium">Pressure Test</td>
+                <td>Hydrostatic Shell Test</td>
+                <td class="text-xs">1.5× Design Pressure — No Leakage</td>
+                <td>100%</td><td>Test Bench</td>
+                <td><span class="badge-blue text-xs">Customer</span></td>
+                <td>Hydro Report</td>
+                <td><span class="badge-amber">Pending</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td class="font-medium">NDE</td>
+                <td>Radiographic Test (RT)</td>
+                <td class="text-xs">ASME Sec V — Level II</td>
+                <td>10%</td><td>X-Ray</td>
+                <td><span class="badge-red text-xs">Third Party</span></td>
+                <td>RT Report</td>
+                <td><span class="badge-gray">N/A</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td class="font-medium">Hardness</td>
+                <td>Brinell Hardness</td>
+                <td class="text-xs">137–187 BHN (WCB)</td>
+                <td>100%</td><td>Brinell Tester</td>
+                <td><span class="badge-gray text-xs">QA</span></td>
+                <td>Hardness Report</td>
+                <td><span class="badge-green">Done</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td class="font-medium">Seat Leak</td>
+                <td>Low-Pressure Seat Test</td>
+                <td class="text-xs">API 598 Table 4</td>
+                <td>100%</td><td>Test Bench</td>
+                <td><span class="badge-blue text-xs">Customer</span></td>
+                <td>Hydro Report</td>
+                <td><span class="badge-amber">Pending</span></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td class="font-medium">Painting / Coating</td>
+                <td>DFT Measurement</td>
+                <td class="text-xs">Min 75 µm DFT</td>
+                <td>100%</td><td>Elcometer</td>
+                <td><span class="badge-gray text-xs">QA</span></td>
+                <td>Painting Report</td>
+                <td><span class="badge-gray">Not Started</span></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td class="font-medium">Marking</td>
+                <td>Nameplate / Body Marking</td>
+                <td class="text-xs">As per MSS SP-25 / ASME B16.34</td>
+                <td>100%</td><td>Visual</td>
+                <td><span class="badge-gray text-xs">QA</span></td>
+                <td>QA Report</td>
+                <td><span class="badge-gray">Not Started</span></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td class="font-medium">Final Inspection</td>
+                <td>Final Dispatch Inspection</td>
+                <td class="text-xs">All above satisfied</td>
+                <td>100%</td><td>Visual + Docs</td>
+                <td><span class="badge-blue text-xs">Customer</span></td>
+                <td>Final Dispatch Note</td>
+                <td><span class="badge-gray">Not Started</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4">
+          <button class="btn-green">✔ Approve QAP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: NCR ===== -->
+    <div x-show="activeTab === 'ncr'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Top filter row -->
+        <div class="flex flex-wrap items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary" @click="showNCRForm = !showNCRForm">＋ New NCR</button>
+          <div>
+            <select class="form-input w-36">
+              <option value="">All Statuses</option>
+              <option>Open</option>
+              <option>Under Review</option>
+              <option>Closed</option>
+            </select>
+          </div>
+          <div>
+            <input class="form-input w-36" type="date" value="2026-05-01" />
+          </div>
+          <div>
+            <input class="form-input w-36" type="date" value="2026-05-26" />
+          </div>
+          <button class="btn-secondary">🔍 Filter</button>
+          <div class="ml-auto">
+            <input class="form-input w-48" placeholder="Search NCR…" />
+          </div>
+        </div>
+        <!-- NCR list table -->
+        <div class="overflow-x-auto rounded-lg border border-slate-200 mb-4">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>NCR No</th><th>Date</th><th>Valve / Item</th><th>Defect Description</th>
+                <th>Raised By</th><th>Status</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-mono font-semibold text-red-600">NCR-2526-0015</td>
+                <td>18-May-2026</td>
+                <td>Gate Valve 6" 150# — VE-GV-6-150-0045</td>
+                <td class="text-xs max-w-xs truncate" title="Body bore diameter found 1.2mm oversize at machining Op 20">Body bore 1.2mm oversize at Op 20</td>
+                <td>Priya R</td>
+                <td><span class="badge-red">Open</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-red-600">NCR-2526-0014</td>
+                <td>15-May-2026</td>
+                <td>Globe Valve 3" 300# — VE-GL-3-300-0012</td>
+                <td class="text-xs max-w-xs truncate" title="Surface pitting observed on seat ring">Surface pitting on seat ring</td>
+                <td>Priya R</td>
+                <td><span class="badge-red">Open</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-amber-600">NCR-2526-0013</td>
+                <td>10-May-2026</td>
+                <td>Ball Valve 4" 150# — VE-BL-4-150-0023</td>
+                <td class="text-xs max-w-xs truncate" title="Material test certificate not available for body">MTC not available for body material</td>
+                <td>Rajan M</td>
+                <td><span class="badge-amber">Under Review</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-slate-500">NCR-2526-0012</td>
+                <td>03-May-2026</td>
+                <td>Check Valve 2" 600# — VE-CK-2-600-0008</td>
+                <td class="text-xs max-w-xs truncate" title="Thread galling on bonnet studs">Thread galling on bonnet studs</td>
+                <td>Priya R</td>
+                <td><span class="badge-gray">Closed</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">View</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-slate-500">NCR-2526-0011</td>
+                <td>28-Apr-2026</td>
+                <td>Gate Valve 10" 300# — VE-GV-10-300-0003</td>
+                <td class="text-xs max-w-xs truncate" title="Paint DFT below 75 microns on flange faces">Paint DFT below 75µm on flange faces</td>
+                <td>Mohan V</td>
+                <td><span class="badge-gray">Closed</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- NCR Entry Form (toggle) -->
+        <div x-show="showNCRForm" x-cloak class="border-t-2 border-sky-200 pt-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-slate-700">New / Edit NCR</h3>
+            <button @click="showNCRForm = false" class="text-slate-400 hover:text-slate-600 text-lg leading-none">&times;</button>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <div class="grid grid-cols-4 gap-x-6 gap-y-3 mb-3">
+              <div>
+                <label class="form-label">NCR No</label>
+                <input class="form-input font-mono font-semibold text-red-700" value="NCR-2526-0015" />
+              </div>
+              <div>
+                <label class="form-label">Date</label>
+                <input class="form-input" value="18-May-2026" />
+              </div>
+              <div>
+                <label class="form-label">OA No</label>
+                <input class="form-input font-mono" value="OA-2526-0123" />
+              </div>
+              <div>
+                <label class="form-label">Job Card No</label>
+                <input class="form-input font-mono" value="JC-2526-0178" />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label mb-2">Defect Type</label>
+              <div class="radio-group">
+                <label><input type="radio" name="defectType" checked class="accent-red-600" /> Dimensional</label>
+                <label><input type="radio" name="defectType" class="accent-red-600" /> Surface Finish</label>
+                <label><input type="radio" name="defectType" class="accent-red-600" /> Material</label>
+                <label><input type="radio" name="defectType" class="accent-red-600" /> Documentation</label>
+                <label><input type="radio" name="defectType" class="accent-red-600" /> Other</label>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-3 mb-3">
+              <div>
+                <label class="form-label">Defect Description</label>
+                <textarea class="form-input h-20 resize-none" style="height:80px;">Body bore diameter found 1.2mm oversize at machining Op 20 (Boring on VMC-01). Drawing dimension Ø152.40+0.05 — Actual measured Ø153.62</textarea>
+              </div>
+              <div>
+                <label class="form-label">Root Cause Analysis</label>
+                <textarea class="form-input h-20 resize-none" style="height:80px;" placeholder="Analyse root cause — machine, operator, drawing, material…"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Corrective Action</label>
+                <textarea class="form-input h-20 resize-none" style="height:80px;" placeholder="Describe corrective / preventive action taken…"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="form-label">Defective Qty</label>
+                  <input class="form-input" type="number" value="1" />
+                </div>
+                <div>
+                  <label class="form-label">Detected Stage</label>
+                  <select class="form-input"><option>Machining</option><option>Assembly</option><option>Final Inspection</option><option>Customer</option></select>
+                </div>
+                <div>
+                  <label class="form-label">Action By</label>
+                  <input class="form-input" value="Ramesh K" />
+                </div>
+                <div>
+                  <label class="form-label">Target Date</label>
+                  <input class="form-input" value="25-May-2026" />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label mb-2">Disposition</label>
+              <div class="radio-group">
+                <label><input type="radio" name="disposition" checked class="accent-sky-600" /> Rework</label>
+                <label><input type="radio" name="disposition" class="accent-sky-600" /> Scrap</label>
+                <label><input type="radio" name="disposition" class="accent-sky-600" /> Use As Is (UAI)</label>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 mr-4">
+                <span class="form-label">Status:</span>
+                <span class="badge-red text-sm px-3 py-1">OPEN</span>
+              </div>
+              <button class="btn-primary">💾 Save NCR</button>
+              <button class="btn-secondary" style="border-color:#475569;color:#475569;">✖ Close NCR</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: HYDRO TEST ===== -->
+    <div x-show="activeTab === 'hydrotest'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action bar -->
+        <div class="flex gap-2 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ New Test</button>
+          <button class="btn-navy">💾 Save</button>
+          <button class="btn-secondary">🖨️ Print Test Report</button>
+        </div>
+        <!-- Header -->
+        <div class="grid grid-cols-4 gap-x-6 gap-y-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <div>
+            <label class="form-label">Test Report No</label>
+            <input class="form-input font-mono font-semibold text-sky-700" value="HT-2526-0045" />
+          </div>
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input" value="22-May-2026" />
+          </div>
+          <div>
+            <label class="form-label">OA No</label>
+            <input class="form-input font-mono" value="OA-2526-0123" />
+          </div>
+          <div>
+            <label class="form-label">Job Card No</label>
+            <input class="form-input font-mono" value="JC-2526-0178" />
+          </div>
+          <div class="col-span-2">
+            <label class="form-label">Valve Description</label>
+            <input class="form-input font-medium" value="Gate Valve 6&quot; 150# WCB RF BB OS&amp;Y" />
+          </div>
+          <div>
+            <label class="form-label">Valve Serial No</label>
+            <input class="form-input font-mono" value="VE-GV-6-150-0045" />
+          </div>
+          <div>
+            <label class="form-label">Customer</label>
+            <input class="form-input font-semibold" value="BHEL" />
+          </div>
+        </div>
+        <!-- Test parameters (2 col) -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="section-card">
+            <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Test Parameters</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="form-label">Design Pressure</label>
+                <div class="flex items-center gap-2"><input class="form-input" value="20" /><span class="text-sm text-slate-500 whitespace-nowrap">bar</span></div>
+              </div>
+              <div>
+                <label class="form-label">Test Pressure (1.5×)</label>
+                <div class="flex items-center gap-2"><input class="form-input font-bold text-sky-700" value="30" /><span class="text-sm text-slate-500 whitespace-nowrap">bar</span></div>
+              </div>
+              <div>
+                <label class="form-label">Test Medium</label>
+                <input class="form-input" value="Water" />
+              </div>
+              <div>
+                <label class="form-label">Temperature</label>
+                <input class="form-input" value="Ambient (~28°C)" />
+              </div>
+              <div>
+                <label class="form-label">Test Duration</label>
+                <input class="form-input" value="30 minutes" />
+              </div>
+              <div>
+                <label class="form-label">Pressure Gauge No</label>
+                <input class="form-input font-mono" value="PG-012" />
+              </div>
+              <div>
+                <label class="form-label">Test Standard</label>
+                <input class="form-input font-semibold" value="API 598" />
+              </div>
+              <div>
+                <label class="form-label">Test Bench</label>
+                <input class="form-input" value="HYD-01" />
+              </div>
+            </div>
+          </div>
+          <div class="section-card">
+            <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Witness Details</h4>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label class="form-label">Customer Witness</label>
+                <div class="radio-group mt-1">
+                  <label><input type="radio" name="witness" checked class="accent-sky-600" /> Yes</label>
+                  <label><input type="radio" name="witness" class="accent-sky-600" /> No</label>
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Witness Name</label>
+                <input class="form-input" value="Mr. Rajesh Kumar (BHEL QC)" />
+              </div>
+              <div>
+                <label class="form-label">Tested By</label>
+                <input class="form-input" value="Priya R" />
+              </div>
+              <div>
+                <label class="form-label">Witnessed Date</label>
+                <input class="form-input" value="22-May-2026" />
+              </div>
+            </div>
+            <!-- Test results -->
+            <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Test Results</h4>
+            <div class="space-y-2 mb-3">
+              <div class="flex items-center justify-between py-2 px-3 bg-green-50 rounded-lg border border-green-200">
+                <span class="text-sm font-medium text-slate-700">Shell Test</span>
+                <span class="badge-green text-sm px-3 py-1">PASS ✓</span>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 bg-green-50 rounded-lg border border-green-200">
+                <span class="text-sm font-medium text-slate-700">Seat Test</span>
+                <span class="badge-green text-sm px-3 py-1">PASS ✓</span>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 bg-green-50 rounded-lg border border-green-200">
+                <span class="text-sm font-medium text-slate-700">Backseat Test</span>
+                <span class="badge-green text-sm px-3 py-1">PASS ✓</span>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-sm font-medium text-slate-700">Leakage Observed</span>
+                <span class="text-sm font-semibold text-green-700">None</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-3 px-4 bg-green-100 rounded-xl border-2 border-green-400">
+              <span class="text-base font-bold text-slate-700">Final Result</span>
+              <span class="text-xl font-black text-green-700 tracking-wide">PASS ✓</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-green">🖨️ Print Test Certificate</button>
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: CALIBRATION ===== -->
+    <div x-show="activeTab === 'calibration'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action + filter bar -->
+        <div class="flex flex-wrap items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ Add Instrument</button>
+          <div>
+            <select class="form-input w-40">
+              <option>All Status</option>
+              <option>OK</option>
+              <option>Due This Month</option>
+              <option>Overdue</option>
+            </select>
+          </div>
+          <div>
+            <input class="form-input w-48" placeholder="🔍 Search instrument…" />
+          </div>
+        </div>
+        <!-- Summary cards -->
+        <div class="grid grid-cols-4 gap-3 mb-4">
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#dbeafe;">🔧</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Total Instruments</p>
+              <p class="text-2xl font-bold text-slate-800">34</p>
+            </div>
+          </div>
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#fef9c3;">📅</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Due This Month</p>
+              <p class="text-2xl font-bold text-amber-600">5</p>
+            </div>
+          </div>
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#fee2e2;">⚠️</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Overdue</p>
+              <p class="text-2xl font-bold text-red-600">2</p>
+            </div>
+          </div>
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#dcfce7;">✅</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Calibrated OK</p>
+              <p class="text-2xl font-bold text-green-600">27</p>
+            </div>
+          </div>
+        </div>
+        <!-- Calibration table -->
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Inst Code</th><th>Instrument Name</th><th>Type</th><th>Range</th>
+                <th>Last Calibration</th><th>Due Date</th><th>Status</th>
+                <th>Certificate No</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="overdue-row">
+                <td class="font-mono font-semibold text-red-700">PG-012</td>
+                <td class="font-medium">Pressure Gauge</td><td>Gauge</td><td>0–100 bar</td>
+                <td>Jan-2026</td><td class="text-red-600 font-semibold">Apr-2026</td>
+                <td><span class="badge-red">OVERDUE</span></td>
+                <td class="font-mono text-xs">CAL-023</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Calibrate</button></td>
+              </tr>
+              <tr class="overdue-row">
+                <td class="font-mono font-semibold text-red-700">TH-003</td>
+                <td class="font-medium">Thermometer (RTD)</td><td>Temp</td><td>-20–200°C</td>
+                <td>Nov-2025</td><td class="text-red-600 font-semibold">Feb-2026</td>
+                <td><span class="badge-red">OVERDUE</span></td>
+                <td class="font-mono text-xs">CAL-018</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Calibrate</button></td>
+              </tr>
+              <tr class="due-row">
+                <td class="font-mono font-semibold text-amber-700">PG-015</td>
+                <td class="font-medium">Pressure Gauge</td><td>Gauge</td><td>0–200 bar</td>
+                <td>Feb-2026</td><td class="text-amber-600 font-semibold">May-2026</td>
+                <td><span class="badge-amber">DUE</span></td>
+                <td class="font-mono text-xs">CAL-031</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Calibrate</button></td>
+              </tr>
+              <tr class="due-row">
+                <td class="font-mono font-semibold text-amber-700">HG-002</td>
+                <td class="font-medium">Height Gauge</td><td>Measuring</td><td>0–500mm</td>
+                <td>Feb-2026</td><td class="text-amber-600 font-semibold">May-2026</td>
+                <td><span class="badge-amber">DUE</span></td>
+                <td class="font-mono text-xs">CAL-034</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Calibrate</button></td>
+              </tr>
+              <tr class="due-row">
+                <td class="font-mono font-semibold text-amber-700">TQ-001</td>
+                <td class="font-medium">Torque Wrench</td><td>Torque</td><td>10–200 Nm</td>
+                <td>Mar-2026</td><td class="text-amber-600 font-semibold">Jun-2026</td>
+                <td><span class="badge-amber">DUE</span></td>
+                <td class="font-mono text-xs">CAL-039</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Calibrate</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono">VN-001</td>
+                <td class="font-medium">Vernier Caliper</td><td>Measuring</td><td>0–300mm</td>
+                <td>Mar-2026</td><td>Mar-2027</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-045</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-mono">MC-002</td>
+                <td class="font-medium">Micrometer (Outside)</td><td>Measuring</td><td>0–25mm</td>
+                <td>Mar-2026</td><td>Mar-2027</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-046</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-mono">MC-003</td>
+                <td class="font-medium">Micrometer (Outside)</td><td>Measuring</td><td>25–50mm</td>
+                <td>Mar-2026</td><td>Mar-2027</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-047</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-mono">DI-004</td>
+                <td class="font-medium">Dial Indicator</td><td>Measuring</td><td>0–10mm</td>
+                <td>Jan-2026</td><td>Jan-2027</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-025</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-mono">PG-020</td>
+                <td class="font-medium">Test Pressure Gauge</td><td>Gauge</td><td>0–400 bar</td>
+                <td>Apr-2026</td><td>Oct-2026</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-051</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-mono">SR-001</td>
+                <td class="font-medium">Surface Roughness Tester</td><td>Measuring</td><td>Ra 0.05–12.5</td>
+                <td>Feb-2026</td><td>Feb-2027</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-036</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-mono">HL-001</td>
+                <td class="font-medium">Hardness Tester (Brinell)</td><td>Hardness</td><td>HB 100–400</td>
+                <td>Dec-2025</td><td>Jun-2026</td>
+                <td><span class="badge-green">OK</span></td>
+                <td class="font-mono text-xs">CAL-022</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-red-600 font-medium">⚠ 2 instruments are overdue for calibration. Immediate action required — do not use PG-012 and TH-003 until recalibrated.</p>
+      </div>
+    </div>
+
+    <!-- ===== TAB 5: CUSTOMER REJECTION ===== -->
+    <div x-show="activeTab === 'custrej'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action bar -->
+        <div class="flex gap-2 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ New Rejection</button>
+          <button class="btn-navy">💾 Save</button>
+          <div class="ml-auto">
+            <input class="form-input w-48" placeholder="🔍 Search…" />
+          </div>
+        </div>
+        <!-- Rejection table -->
+        <div class="overflow-x-auto rounded-lg border border-slate-200 mb-4">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Rejection No</th><th>OA No</th><th>Customer</th><th>Valve</th>
+                <th>Rejection Date</th><th>Reason</th><th>Status</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-mono font-semibold text-red-600">CR-2526-0005</td>
+                <td class="font-mono text-sky-700">OA-2526-0101</td>
+                <td class="font-semibold">BHEL</td>
+                <td class="text-xs">Gate Valve 6" 150# — VE-GV-6-150-0041</td>
+                <td>10-May-2026</td>
+                <td class="text-xs text-red-700 font-medium">Flange face dimension oversize — RF face 0.5mm excess</td>
+                <td><span class="badge-red">Open</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-red-600">CR-2526-0004</td>
+                <td class="font-mono text-sky-700">OA-2526-0101</td>
+                <td class="font-semibold">BHEL</td>
+                <td class="text-xs">Gate Valve 6" 150# — VE-GV-6-150-0042</td>
+                <td>10-May-2026</td>
+                <td class="text-xs text-red-700 font-medium">Bore diameter at body Ø152.40 found Ø153.60 — same batch issue</td>
+                <td><span class="badge-red">Open</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-amber-600">CR-2526-0003</td>
+                <td class="font-mono text-sky-700">OA-2526-0098</td>
+                <td class="font-semibold">NTPC</td>
+                <td class="text-xs">Globe Valve 3" 300# — VE-GL-3-300-0009</td>
+                <td>28-Apr-2026</td>
+                <td class="text-xs text-amber-700 font-medium">Painting peeling at gland area — coating adhesion failure</td>
+                <td><span class="badge-amber">Replacement Sent</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">View</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-slate-500">CR-2526-0002</td>
+                <td class="font-mono text-sky-700">OA-2526-0090</td>
+                <td class="font-semibold">IOCL</td>
+                <td class="text-xs">Check Valve 2" 600# — VE-CK-2-600-0005</td>
+                <td>15-Apr-2026</td>
+                <td class="text-xs">Wrong end connection — SW supplied instead of BW</td>
+                <td><span class="badge-gray">Closed</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">View</button></td>
+              </tr>
+              <tr>
+                <td class="font-mono font-semibold text-slate-500">CR-2526-0001</td>
+                <td class="font-mono text-sky-700">OA-2526-0085</td>
+                <td class="font-semibold">ONGC</td>
+                <td class="text-xs">Ball Valve 4" 150# — VE-BL-4-150-0018</td>
+                <td>02-Apr-2026</td>
+                <td class="text-xs">Nameplate missing — ASME B16.34 marking incomplete</td>
+                <td><span class="badge-gray">Closed</span></td>
+                <td><button class="btn-secondary py-1 px-2 text-xs">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Entry / Edit form -->
+        <div class="border-t border-slate-200 pt-4">
+          <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Customer Rejection Entry / Edit</h3>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+            <div class="grid grid-cols-4 gap-x-6 gap-y-3 mb-3">
+              <div>
+                <label class="form-label">Rejection No</label>
+                <input class="form-input font-mono font-semibold text-red-700" value="CR-2526-0005" />
+              </div>
+              <div>
+                <label class="form-label">Customer</label>
+                <select class="form-input"><option>BHEL</option><option>NTPC</option><option>IOCL</option><option>ONGC</option><option>GAIL</option><option>HPCL</option></select>
+              </div>
+              <div>
+                <label class="form-label">Invoice No</label>
+                <input class="form-input font-mono" value="INV-2526-0089" />
+              </div>
+              <div>
+                <label class="form-label">Rejection Date</label>
+                <input class="form-input" value="10-May-2026" />
+              </div>
+              <div>
+                <label class="form-label">OA No</label>
+                <input class="form-input font-mono" value="OA-2526-0101" />
+              </div>
+              <div>
+                <label class="form-label">Valve Serial No</label>
+                <input class="form-input font-mono" value="VE-GV-6-150-0041" />
+              </div>
+              <div>
+                <label class="form-label">Valve Description</label>
+                <input class="form-input" value="Gate Valve 6&quot; 150# WCB RF" />
+              </div>
+              <div>
+                <label class="form-label">Qty Rejected</label>
+                <input class="form-input" type="number" value="1" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-3 mb-3">
+              <div>
+                <label class="form-label">Rejection Reason</label>
+                <select class="form-input mb-2">
+                  <option>Dimensional Non-conformance</option>
+                  <option>Surface Defect</option>
+                  <option>Wrong Specification</option>
+                  <option>Painting / Coating Failure</option>
+                  <option>Documentation Error</option>
+                  <option>Other</option>
+                </select>
+                <textarea class="form-input h-16 resize-none" style="height:64px;">Flange face RF dimension found oversize by 0.5mm. Customer drawing tolerance +0.0/-0.8mm. Valve cannot be installed — dispatch note DN-2526-0089.</textarea>
+              </div>
+              <div>
+                <label class="form-label">Corrective Action</label>
+                <textarea class="form-input h-16 resize-none" style="height:64px;" placeholder="Describe corrective action — rework, replacement, process correction…"></textarea>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-x-6 gap-y-3 mb-3">
+              <div>
+                <label class="form-label">Replacement Status</label>
+                <select class="form-input">
+                  <option>Replacement Required</option>
+                  <option>Replacement In Production</option>
+                  <option>Replacement Dispatched</option>
+                  <option>Rework Accepted</option>
+                  <option>Closed — No Replacement</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Target Closure Date</label>
+                <input class="form-input" value="31-May-2026" />
+              </div>
+              <div>
+                <label class="form-label">Status</label>
+                <div class="mt-1"><span class="badge-red text-sm px-3 py-1">Open</span></div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary">💾 Save</button>
+              <button class="btn-secondary">✖ Cancel</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

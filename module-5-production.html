@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Production & Manufacturing — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    body { background: #f8fafc; }
+    .table-crisp { border-collapse: collapse; width: 100%; }
+    .table-crisp th { background: #f1f5f9; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #475569; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap; }
+    .table-crisp td { font-size: 0.8rem; padding: 7px 10px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    .table-crisp tr:hover td { background: #f8fafc; }
+    .table-crisp tr:nth-child(even) td { background: #fafbfc; }
+    .table-crisp tr:nth-child(even):hover td { background: #f1f5f9; }
+    .sidebar-link { display: flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 0.82rem; color: #94a3b8; border-radius: 6px; margin: 1px 8px; transition: background 0.15s, color 0.15s; text-decoration: none; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .sidebar-link.active { background: #0ea5e9; color: #fff; font-weight: 600; }
+    .tab-btn { padding: 8px 16px; font-size: 0.82rem; font-weight: 500; border-bottom: 2px solid transparent; color: #64748b; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .tab-btn.active { border-bottom-color: #0ea5e9; color: #0ea5e9; font-weight: 600; }
+    .tab-btn:hover:not(.active) { color: #334155; }
+    .badge-green  { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#dcfce7; color:#15803d; }
+    .badge-amber  { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#fef9c3; color:#b45309; }
+    .badge-red    { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#fee2e2; color:#b91c1c; }
+    .badge-gray   { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#f1f5f9; color:#475569; }
+    .badge-blue   { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:0.72rem; font-weight:600; background:#dbeafe; color:#1d4ed8; }
+    .form-label { font-size: 0.72rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; display: block; }
+    .form-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 0.82rem; color: #1e293b; background: #fff; outline: none; transition: border-color 0.15s; }
+    .form-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 2px rgba(14,165,233,0.15); }
+    .btn-primary { background: #0ea5e9; color: #fff; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-primary:hover { background: #0284c7; }
+    .btn-secondary { background: #fff; color: #334155; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: 1px solid #cbd5e1; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-secondary:hover { background: #f1f5f9; }
+    .btn-navy { background: #1e3a5f; color: #fff; padding: 7px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-navy:hover { background: #1a3050; }
+    .stat-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 16px 20px; }
+    .section-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 16px; margin-bottom: 16px; }
+  </style>
+</head>
+<body class="font-sans" x-data="{ activeTab: 'monthlyplan', showNJC: false }">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 flex items-center justify-between px-4 z-50 shadow-md" style="background:#1e3a5f;">
+    <div class="flex items-center gap-2">
+      <a href="dashboard.html" class="text-white font-bold text-sm tracking-wide hover:text-sky-300">MSSHPL ERP</span>
+      <span class="text-sky-300 text-xs font-medium ml-1">| Veeyes Engineering</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-sky-200 text-xs">👤 Sujatha</span>
+      <span class="text-xs px-2 py-1 rounded bg-sky-800 text-sky-200 font-medium">Admin</span>
+      <button class="text-xs text-red-300 hover:text-red-200 font-medium ml-1">Logout</button>
+    </div>
+  </nav>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="fixed top-12 left-0 bottom-0 w-52 overflow-y-auto z-40 shadow-lg" style="background:#1a3050;">
+    <div class="pt-3 pb-4">
+      <p class="text-xs text-slate-500 font-semibold px-4 py-2 uppercase tracking-widest">Modules</p>
+      <a href="dashboard.html" class="sidebar-link" style="background:#0f2840;border-bottom:1px solid rgba(255,255,255,0.08);">🏠 Home / Dashboard</a>
+  <a href="module-1-admin.html"      class="sidebar-link">🔐 Admin</a>
+      <a href="module-2-masters.html"    class="sidebar-link">📋 Masters</a>
+      <a href="module-3-sales.html"      class="sidebar-link">📦 Sales</a>
+      <a href="module-4-purchase.html"   class="sidebar-link">🛒 Purchase</a>
+      <a href="module-5-production.html" class="sidebar-link active">⚙️ Production</a>
+      <a href="module-6-quality.html"    class="sidebar-link">✅ Quality</a>
+      <a href="module-7-dispatch.html"   class="sidebar-link">🚚 Dispatch</a>
+      <a href="module-8-subcontract.html"class="sidebar-link">🔧 Subcontract</a>
+      <a href="module-9-inventory.html"  class="sidebar-link">📊 Inventory</a>
+      <a href="module-10-mis.html"       class="sidebar-link">📈 MIS</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 p-4 min-h-screen">
+
+    <!-- Page header -->
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-lg font-bold text-slate-800">Production &amp; Manufacturing</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Manage job cards, daily production, assembly and material issues</p>
+      </div>
+      <span class="text-xs text-slate-400">26-May-2026 | FY 2025-26</span>
+    </div>
+
+    <!-- TABS -->
+    <div class="bg-white rounded-t-lg shadow-sm border-b border-slate-200 flex overflow-x-auto">
+      <button class="tab-btn" :class="{ active: activeTab === 'monthlyplan' }" @click="activeTab='monthlyplan'">Monthly Plan</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'jobcard' }"     @click="activeTab='jobcard'">Job Card (PRC)</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'dailyprod' }"   @click="activeTab='dailyprod'">Daily Production</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'assembly' }"    @click="activeTab='assembly'">Assembly</button>
+      <button class="tab-btn" :class="{ active: activeTab === 'matissue' }"    @click="activeTab='matissue'">Material Issues</button>
+    </div>
+
+    <!-- ===== TAB 1: MONTHLY PLAN ===== -->
+    <div x-show="activeTab === 'monthlyplan'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Filter bar -->
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <div>
+            <label class="form-label">Month</label>
+            <select class="form-input w-36"><option>May 2026</option><option>April 2026</option><option>March 2026</option></select>
+          </div>
+          <div>
+            <label class="form-label">Year</label>
+            <select class="form-input w-28"><option>2025-26</option><option>2024-25</option></select>
+          </div>
+          <div class="mt-4">
+            <button class="btn-navy">📂 Load Plan</button>
+          </div>
+          <div class="mt-4 ml-auto">
+            <button class="btn-primary">＋ New Plan</button>
+          </div>
+        </div>
+        <!-- Summary cards -->
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#dbeafe;">🗓️</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Total Planned</p>
+              <p class="text-2xl font-bold text-slate-800">85 <span class="text-sm font-normal text-slate-400">valves</span></p>
+            </div>
+          </div>
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#dcfce7;">✅</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Completed</p>
+              <p class="text-2xl font-bold text-green-600">43</p>
+            </div>
+          </div>
+          <div class="stat-card flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background:#fef9c3;">⏳</div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Pending</p>
+              <p class="text-2xl font-bold text-amber-600">42</p>
+            </div>
+          </div>
+        </div>
+        <!-- Plan table -->
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Sr</th><th>OA No</th><th>Customer</th><th>Valve Description</th><th>Size</th><th>Class</th>
+                <th>Plan Qty</th><th>Completed</th><th>Balance</th><th>Target Date</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td class="text-sky-700 font-medium">OA-2526-0101</td><td>BHEL</td><td>Gate Valve BB OS&amp;Y</td><td>6"</td><td>150#</td><td>10</td><td>10</td><td>0</td><td>10-May-2026</td><td><span class="badge-green">Complete</span></td></tr>
+              <tr><td>2</td><td class="text-sky-700 font-medium">OA-2526-0105</td><td>NTPC</td><td>Globe Valve HW</td><td>3"</td><td>300#</td><td>8</td><td>5</td><td>3</td><td>18-May-2026</td><td><span class="badge-blue">In Progress</span></td></tr>
+              <tr><td>3</td><td class="text-sky-700 font-medium">OA-2526-0110</td><td>IOCL</td><td>Check Valve SW</td><td>2"</td><td>600#</td><td>12</td><td>12</td><td>0</td><td>12-May-2026</td><td><span class="badge-green">Complete</span></td></tr>
+              <tr><td>4</td><td class="text-sky-700 font-medium">OA-2526-0115</td><td>BHEL</td><td>Ball Valve F/F</td><td>4"</td><td>150#</td><td>6</td><td>6</td><td>0</td><td>15-May-2026</td><td><span class="badge-green">Complete</span></td></tr>
+              <tr><td>5</td><td class="text-sky-700 font-medium">OA-2526-0120</td><td>ONGC</td><td>Butterfly Valve Wafer</td><td>8"</td><td>150#</td><td>5</td><td>2</td><td>3</td><td>25-May-2026</td><td><span class="badge-blue">In Progress</span></td></tr>
+              <tr><td>6</td><td class="text-sky-700 font-medium">OA-2526-0123</td><td>BHEL</td><td>Gate Valve BB OS&amp;Y RF</td><td>6"</td><td>150#</td><td>15</td><td>8</td><td>7</td><td>30-May-2026</td><td><span class="badge-blue">In Progress</span></td></tr>
+              <tr><td>7</td><td class="text-sky-700 font-medium">OA-2526-0128</td><td>GAIL</td><td>Globe Valve SW Bellows</td><td>1½"</td><td>800#</td><td>10</td><td>0</td><td>10</td><td>05-Jun-2026</td><td><span class="badge-gray">Not Started</span></td></tr>
+              <tr><td>8</td><td class="text-sky-700 font-medium">OA-2526-0131</td><td>NTPC</td><td>Strainer Y-Type</td><td>2"</td><td>300#</td><td>8</td><td>0</td><td>8</td><td>08-Jun-2026</td><td><span class="badge-gray">Not Started</span></td></tr>
+              <tr><td>9</td><td class="text-sky-700 font-medium">OA-2526-0135</td><td>HPCL</td><td>Gate Valve OS&amp;Y BW</td><td>10"</td><td>300#</td><td>4</td><td>0</td><td>4</td><td>10-Jun-2026</td><td><span class="badge-gray">Not Started</span></td></tr>
+              <tr><td>10</td><td class="text-sky-700 font-medium">OA-2526-0140</td><td>IOCL</td><td>Check Valve Dual Plate</td><td>12"</td><td>150#</td><td>7</td><td>0</td><td>7</td><td>15-Jun-2026</td><td><span class="badge-gray">Not Started</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Footer actions -->
+        <div class="flex gap-2 mt-4">
+          <button class="btn-secondary">📥 Export to Excel</button>
+          <button class="btn-secondary">🖨️ Print Plan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: JOB CARD ===== -->
+    <div x-show="activeTab === 'jobcard'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action bar -->
+        <div class="flex gap-2 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ New Job Card</button>
+          <button class="btn-navy">💾 Save</button>
+          <button class="btn-secondary">🖨️ Print Job Card</button>
+          <div class="ml-auto">
+            <input class="form-input w-52" placeholder="🔍 Search Job Card…" />
+          </div>
+        </div>
+        <!-- Header form -->
+        <div class="grid grid-cols-3 gap-x-6 gap-y-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <div>
+            <label class="form-label">Job Card No</label>
+            <input class="form-input font-mono font-semibold text-sky-700" value="JC-2526-0178" />
+          </div>
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input" value="15-May-2026" />
+          </div>
+          <div>
+            <label class="form-label">OA No</label>
+            <input class="form-input font-mono" value="OA-2526-0123" />
+          </div>
+          <div>
+            <label class="form-label">Customer</label>
+            <input class="form-input font-semibold" value="BHEL" />
+          </div>
+          <div class="col-span-2">
+            <label class="form-label">Valve Description</label>
+            <input class="form-input" value="Gate Valve 6&quot; 150# WCB RF BB OS&amp;Y" />
+          </div>
+          <div>
+            <label class="form-label">Valve No</label>
+            <input class="form-input font-mono" value="VE-GV-6-150-0045" />
+          </div>
+          <div>
+            <label class="form-label">Heat No (from GRN)</label>
+            <input class="form-input font-mono" value="H-2024-0456" />
+          </div>
+          <div>
+            <label class="form-label">Material</label>
+            <input class="form-input" value="WCB Castings" />
+          </div>
+          <div>
+            <label class="form-label">Component</label>
+            <input class="form-input" value="Body" />
+          </div>
+          <div>
+            <label class="form-label">Drawing No</label>
+            <input class="form-input font-mono" value="VE-GV-BODY-C1" />
+          </div>
+          <div>
+            <label class="form-label">Status</label>
+            <div class="mt-1"><span class="badge-blue text-sm px-3 py-1">In Progress</span></div>
+          </div>
+        </div>
+        <!-- Process routing table -->
+        <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Process Routing</h3>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Op No</th><th>Operation</th><th>Machine</th><th>Operator</th>
+                <th>Setup (min)</th><th>Cycle (min)</th><th>Status</th>
+                <th>Inspector</th><th>Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-semibold text-slate-600">10</td>
+                <td class="font-medium">Rough Turning</td><td>CNC-01</td><td>Suresh B</td>
+                <td>30</td><td>45</td>
+                <td><span class="badge-green">Completed</span></td>
+                <td>Priya R</td>
+                <td><span class="badge-green">Pass ✓</span></td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">20</td>
+                <td class="font-medium">Boring</td><td>VMC-01</td><td>Ramesh K</td>
+                <td>20</td><td>60</td>
+                <td><span class="badge-green">Completed</span></td>
+                <td>Priya R</td>
+                <td><span class="badge-green">Pass ✓</span></td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">30</td>
+                <td class="font-medium">Facing</td><td>CNC-01</td><td>Suresh B</td>
+                <td>15</td><td>30</td>
+                <td><span class="badge-blue">In Progress</span></td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">40</td>
+                <td class="font-medium">Drilling</td><td>VMC-01</td><td>—</td>
+                <td>—</td><td>—</td>
+                <td><span class="badge-gray">Pending</span></td>
+                <td>—</td><td>—</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">50</td>
+                <td class="font-medium">Tapping</td><td>VMC-01</td><td>—</td>
+                <td>—</td><td>—</td>
+                <td><span class="badge-gray">Pending</span></td>
+                <td>—</td><td>—</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">60</td>
+                <td class="font-medium">Surface Finish</td><td>Grinder</td><td>—</td>
+                <td>10</td><td>20</td>
+                <td><span class="badge-gray">Pending</span></td>
+                <td>—</td><td>—</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">70</td>
+                <td class="font-medium">Dimensional Check</td><td>QA Bench</td><td>Priya R</td>
+                <td>—</td><td>—</td>
+                <td><span class="badge-gray">Pending</span></td>
+                <td>Priya R</td><td>—</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-slate-600">80</td>
+                <td class="font-medium">Hydro Test</td><td>HYD-01</td><td>QA Team</td>
+                <td>—</td><td>20</td>
+                <td><span class="badge-gray">Pending</span></td>
+                <td>QA / Cust</td><td>—</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="text-right font-semibold text-slate-600 text-xs pr-2">Totals</td>
+                <td class="font-bold text-slate-700">75 min</td>
+                <td class="font-bold text-slate-700">175 min</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: DAILY PRODUCTION ===== -->
+    <div x-show="activeTab === 'dailyprod'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Date/Shift filter -->
+        <div class="flex flex-wrap items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input w-40" value="26-May-2026" />
+          </div>
+          <div>
+            <label class="form-label">Shift</label>
+            <select class="form-input w-32"><option>Day (8–4)</option><option>Evening (4–12)</option><option>Night (12–8)</option></select>
+          </div>
+          <div class="mt-4">
+            <button class="btn-navy">📂 Load Entries</button>
+          </div>
+        </div>
+        <!-- Entry form -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 mb-4">
+          <p class="text-xs font-bold text-slate-600 uppercase tracking-wide mb-3">New Production Entry</p>
+          <div class="grid grid-cols-4 gap-3 mb-3">
+            <div>
+              <label class="form-label">Job Card No</label>
+              <select class="form-input"><option>JC-2526-0178</option><option>JC-2526-0175</option><option>JC-2526-0172</option></select>
+            </div>
+            <div>
+              <label class="form-label">Valve No</label>
+              <input class="form-input font-mono" value="VE-GV-6-150-0045" />
+            </div>
+            <div>
+              <label class="form-label">Operation</label>
+              <select class="form-input"><option>30 - Facing</option><option>10 - Rough Turning</option><option>20 - Boring</option></select>
+            </div>
+            <div>
+              <label class="form-label">Machine</label>
+              <select class="form-input"><option>CNC-01</option><option>VMC-01</option><option>Grinder</option></select>
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-3 mb-3">
+            <div>
+              <label class="form-label">Qty Completed</label>
+              <input class="form-input" type="number" value="1" />
+            </div>
+            <div>
+              <label class="form-label">Rejection Qty</label>
+              <input class="form-input" type="number" value="0" />
+            </div>
+            <div class="col-span-2">
+              <label class="form-label">Rejection Reason (if any)</label>
+              <input class="form-input" placeholder="Dimension oversize / Surface defect…" />
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-3 mb-3">
+            <div>
+              <label class="form-label">Start Time</label>
+              <input class="form-input" value="08:30" type="time" />
+            </div>
+            <div>
+              <label class="form-label">End Time</label>
+              <input class="form-input" value="11:45" type="time" />
+            </div>
+            <div>
+              <label class="form-label">Idle Time (hrs)</label>
+              <input class="form-input" type="number" step="0.5" value="0" />
+            </div>
+            <div>
+              <label class="form-label">Idle Reason</label>
+              <input class="form-input" placeholder="Machine breakdown / No material…" />
+            </div>
+          </div>
+          <button class="btn-primary">＋ Add Entry</button>
+        </div>
+        <!-- Daily summary table -->
+        <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Today's Production Entries — 26-May-2026 | Day Shift</h3>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Job Card</th><th>Valve No</th><th>Operation</th><th>Machine</th>
+                <th>Operator</th><th>Qty Done</th><th>Rejection</th><th>Time (hrs)</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-mono text-sky-700">JC-2526-0178</td>
+                <td class="font-mono text-slate-600 text-xs">VE-GV-6-150-0045</td>
+                <td>Rough Turning</td><td>CNC-01</td><td>Suresh B</td>
+                <td class="font-semibold text-green-700">1</td><td>0</td><td>3.25</td>
+                <td><span class="badge-green">Done</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono text-sky-700">JC-2526-0175</td>
+                <td class="font-mono text-slate-600 text-xs">VE-GV-4-150-0031</td>
+                <td>Boring</td><td>VMC-01</td><td>Ramesh K</td>
+                <td class="font-semibold text-green-700">2</td><td>0</td><td>4.00</td>
+                <td><span class="badge-green">Done</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono text-sky-700">JC-2526-0172</td>
+                <td class="font-mono text-slate-600 text-xs">VE-GL-3-300-0012</td>
+                <td>Facing</td><td>CNC-01</td><td>Suresh B</td>
+                <td class="font-semibold text-green-700">3</td><td class="text-red-600 font-semibold">1</td><td>2.50</td>
+                <td><span class="badge-amber">Rework</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono text-sky-700">JC-2526-0170</td>
+                <td class="font-mono text-slate-600 text-xs">VE-GL-3-300-0010</td>
+                <td>Surface Finish</td><td>Grinder</td><td>Mohan V</td>
+                <td class="font-semibold text-green-700">5</td><td>0</td><td>3.00</td>
+                <td><span class="badge-green">Done</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono text-sky-700">JC-2526-0168</td>
+                <td class="font-mono text-slate-600 text-xs">VE-CK-2-600-0008</td>
+                <td>Drilling</td><td>VMC-01</td><td>Vikram S</td>
+                <td class="font-semibold text-green-700">4</td><td>0</td><td>2.75</td>
+                <td><span class="badge-green">Done</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono text-sky-700">JC-2526-0165</td>
+                <td class="font-mono text-slate-600 text-xs">VE-BL-8-150-0004</td>
+                <td>Tapping</td><td>VMC-01</td><td>Vikram S</td>
+                <td class="font-semibold text-green-700">30</td><td class="text-red-600 font-semibold">1</td><td>1.50</td>
+                <td><span class="badge-blue">In Progress</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Footer totals -->
+        <div class="mt-3 flex gap-6 px-3 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600">
+          <span>Day Total: <span class="text-slate-800 text-sm">45 pieces</span></span>
+          <span>Rejections: <span class="text-red-600 text-sm">2</span></span>
+          <span>Idle Time: <span class="text-amber-600 text-sm">1.5 hrs</span></span>
+          <span class="ml-auto text-slate-400">Shift: Day (08:00–16:00)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: ASSEMBLY ===== -->
+    <div x-show="activeTab === 'assembly'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action bar -->
+        <div class="flex gap-2 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ New Assembly</button>
+          <button class="btn-navy">💾 Save</button>
+          <button class="btn-secondary" style="border-color:#16a34a;color:#16a34a;">✔ Complete</button>
+        </div>
+        <!-- Header -->
+        <div class="grid grid-cols-3 gap-x-6 gap-y-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <div>
+            <label class="form-label">Assembly No</label>
+            <input class="form-input font-mono font-semibold text-sky-700" value="ASM-2526-0067" />
+          </div>
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input" value="20-May-2026" />
+          </div>
+          <div>
+            <label class="form-label">OA No</label>
+            <input class="form-input font-mono" value="OA-2526-0123" />
+          </div>
+          <div class="col-span-2">
+            <label class="form-label">Valve Assembled</label>
+            <input class="form-input font-medium" value="Gate Valve 6&quot; 150# WCB RF BB OS&amp;Y" />
+          </div>
+          <div>
+            <label class="form-label">Valve Serial No</label>
+            <input class="form-input font-mono" value="VE-GV-6-150-0045" />
+          </div>
+          <div>
+            <label class="form-label">Assembly Status</label>
+            <div class="mt-1"><span class="badge-amber text-sm px-3 py-1">IN PROGRESS</span></div>
+          </div>
+          <div>
+            <label class="form-label">Assembler</label>
+            <input class="form-input" value="Dinesh K" />
+          </div>
+          <div>
+            <label class="form-label">Supervisor</label>
+            <input class="form-input" value="Rajan M" />
+          </div>
+        </div>
+        <!-- Component checklist -->
+        <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Component Assembly Checklist</h3>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Sr</th><th>Component</th><th>Drawing No</th><th>Material</th><th>Heat No</th>
+                <th>Qty</th><th>Machined By</th>
+                <th class="text-center">Assembled</th>
+                <th class="text-center">Verified</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td><td class="font-medium">Body</td><td class="font-mono text-xs">VE-GV-BODY-C1</td>
+                <td>WCB Casting</td><td class="font-mono text-xs">H-2024-0456</td><td>1</td><td>Suresh B</td>
+                <td class="text-center"><input type="checkbox" checked class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" checked class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>2</td><td class="font-medium">Bonnet</td><td class="font-mono text-xs">VE-GV-BNET-C1</td>
+                <td>WCB Casting</td><td class="font-mono text-xs">H-2024-0456</td><td>1</td><td>Ramesh K</td>
+                <td class="text-center"><input type="checkbox" checked class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" checked class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>3</td><td class="font-medium">Gate (Wedge)</td><td class="font-mono text-xs">VE-GV-GATE-C1</td>
+                <td>13% Cr SS</td><td class="font-mono text-xs">H-2024-0789</td><td>1</td><td>Suresh B</td>
+                <td class="text-center"><input type="checkbox" checked class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>4</td><td class="font-medium">Stem</td><td class="font-mono text-xs">VE-GV-STEM-C1</td>
+                <td>F6A (13% Cr)</td><td class="font-mono text-xs">H-2024-0812</td><td>1</td><td>Mohan V</td>
+                <td class="text-center"><input type="checkbox" checked class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>5</td><td class="font-medium">Gland</td><td class="font-mono text-xs">VE-GV-GLND-C1</td>
+                <td>WCB</td><td class="font-mono text-xs">H-2024-0456</td><td>1</td><td>Suresh B</td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>6</td><td class="font-medium">Handwheel</td><td class="font-mono text-xs">VE-GV-HW-S1</td>
+                <td>CI Casting</td><td class="font-mono text-xs">H-2024-1023</td><td>1</td><td>—</td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>7</td><td class="font-medium">Stud &amp; Nut Set</td><td class="font-mono text-xs">VE-GV-SN-S1</td>
+                <td>A193 B7 / A194 2H</td><td class="font-mono text-xs">H-2024-0935</td><td>8 sets</td><td>—</td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+              <tr>
+                <td>8</td><td class="font-medium">Packing Set</td><td class="font-mono text-xs">VE-GV-PK-S1</td>
+                <td>Graphite Rope</td><td class="font-mono text-xs">—</td><td>1 set</td><td>—</td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-sky-600" /></td>
+                <td class="text-center"><input type="checkbox" class="w-4 h-4 accent-green-600" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 flex items-center gap-3">
+          <button class="btn-primary" style="background:#16a34a;">✔ Complete Assembly</button>
+          <span class="text-xs text-slate-500">3 of 8 components verified — complete all verifications before finalising</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 5: MATERIAL ISSUES ===== -->
+    <div x-show="activeTab === 'matissue'" x-cloak>
+      <div class="bg-white rounded-b-lg shadow-sm p-4 mb-4">
+        <!-- Action bar -->
+        <div class="flex gap-2 mb-4 pb-3 border-b border-slate-100">
+          <button class="btn-primary">＋ New Issue</button>
+          <button class="btn-navy">💾 Save</button>
+        </div>
+        <!-- Header -->
+        <div class="grid grid-cols-4 gap-x-6 gap-y-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <div>
+            <label class="form-label">Issue No</label>
+            <input class="form-input font-mono font-semibold text-sky-700" value="ISS-2526-0456" />
+          </div>
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input" value="14-May-2026" />
+          </div>
+          <div>
+            <label class="form-label">Job Card No</label>
+            <input class="form-input font-mono" value="JC-2526-0178" />
+          </div>
+          <div>
+            <label class="form-label">Issued By</label>
+            <input class="form-input" value="Dinesh K" />
+          </div>
+        </div>
+        <!-- Items table -->
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="table-crisp">
+            <thead>
+              <tr>
+                <th>Sr</th><th>Component</th><th>Grade / Spec</th>
+                <th>Required Qty</th><th>Issued Qty</th><th>Stock Balance</th>
+                <th>Unit</th><th>Remarks</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td class="font-medium">Body Casting (WCB)</td>
+                <td>ASTM A216 WCB</td>
+                <td>2</td>
+                <td><input class="form-input w-16 text-center py-1" value="2" /></td>
+                <td><span class="font-semibold text-green-700">8</span></td>
+                <td>No.</td>
+                <td>From GRN-2024-0456</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Issue</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td class="font-medium">Bonnet Casting (WCB)</td>
+                <td>ASTM A216 WCB</td>
+                <td>2</td>
+                <td><input class="form-input w-16 text-center py-1" value="2" /></td>
+                <td><span class="font-semibold text-green-700">6</span></td>
+                <td>No.</td>
+                <td>From GRN-2024-0456</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Issue</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td class="font-medium">Stem Bar (F6A)</td>
+                <td>ASTM A182 F6A</td>
+                <td>0.5</td>
+                <td><input class="form-input w-16 text-center py-1" value="0.5" /></td>
+                <td><span class="font-semibold text-amber-600">1.2</span></td>
+                <td>Mtr</td>
+                <td>Cut to length</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Issue</button></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td class="font-medium">Stud A193 B7 M24</td>
+                <td>ASTM A193 B7</td>
+                <td>16</td>
+                <td><input class="form-input w-16 text-center py-1" value="16" /></td>
+                <td><span class="font-semibold text-green-700">120</span></td>
+                <td>No.</td>
+                <td>With nuts A194 2H</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Issue</button></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td class="font-medium">Graphite Packing</td>
+                <td>Flexible Graphite</td>
+                <td>1</td>
+                <td><input class="form-input w-16 text-center py-1" value="1" /></td>
+                <td><span class="font-semibold text-red-600">2</span></td>
+                <td>Set</td>
+                <td>Low stock — raise PR</td>
+                <td><button class="btn-primary py-1 px-3 text-xs">Issue</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-amber-600 font-medium">⚠ Graphite Packing stock is below re-order level (5 sets). Raise Purchase Requisition.</p>
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

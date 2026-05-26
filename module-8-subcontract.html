@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subcontract Management — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .slide-over-enter { transform: translateX(100%); }
+    .slide-over-enter-end { transform: translateX(0); }
+  </style>
+</head>
+<body class="bg-[#f8fafc] font-sans text-sm text-gray-800" x-data="subcontractApp()">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 bg-[#1e3a5f] flex items-center justify-between px-4 z-50 shadow-md">
+    <span class="text-white font-semibold text-base tracking-wide">MSSHPL ERP <span class="text-[#0ea5e9]">|</span> Veeyes Engineering</span>
+    <div class="flex items-center gap-4 text-white text-sm">
+      <span class="opacity-80">Sujatha Admin</span>
+      <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-3 py-1 rounded text-xs font-medium transition">Logout</button>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed top-12 left-0 bottom-0 w-52 bg-[#1a3050] flex flex-col z-40 overflow-y-auto">
+    <nav class="mt-2 flex flex-col gap-0.5 px-2">
+      <a href="dashboard.html" class="text-white bg-[#0f2840] hover:bg-slate-700 flex items-center gap-2 px-3 py-2.5 text-sm font-medium border-b border-slate-700/50">🏠 Home / Dashboard</a>
+      <a href="module-1-admin.html"      class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">🔐 Admin</a>
+      <a href="module-2-masters.html"    class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📋 Masters</a>
+      <a href="module-3-sales.html"      class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📦 Sales</a>
+      <a href="module-4-purchase.html"   class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">🛒 Purchase</a>
+      <a href="module-5-production.html" class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">⚙️ Production</a>
+      <a href="module-6-quality.html"    class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">✅ Quality</a>
+      <a href="module-7-dispatch.html"   class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">🚚 Dispatch</a>
+      <a href="module-8-subcontract.html" class="flex items-center gap-2 px-3 py-2 rounded bg-[#0ea5e9] text-white text-sm font-semibold">🔧 Subcontract</a>
+      <a href="module-9-inventory.html"  class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📊 Inventory</a>
+      <a href="module-10-mis.html"       class="flex items-center gap-2 px-3 py-2 rounded text-gray-300 hover:bg-[#0ea5e9] hover:text-white text-sm transition">📈 MIS</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 p-4 min-h-screen">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-xl font-bold text-[#1e3a5f]">Subcontract Management</h1>
+        <p class="text-gray-500 text-xs mt-0.5">Manage subcontract DCs, goods receipts, PCN tracking and billing</p>
+      </div>
+      <div class="flex gap-2 text-xs">
+        <div class="bg-white border border-gray-200 rounded px-3 py-1.5 text-gray-600">
+          Active Party: <span class="font-semibold text-[#1e3a5f]">Bhagwan Precision Works (BPW)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="flex gap-1 mb-4 border-b border-gray-200">
+      <template x-for="tab in tabs" :key="tab.id">
+        <button
+          @click="activeTab = tab.id"
+          :class="activeTab === tab.id
+            ? 'border-b-2 border-[#0ea5e9] text-[#0ea5e9] font-semibold bg-white'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+          class="px-4 py-2 text-sm rounded-t transition whitespace-nowrap"
+          x-text="tab.label">
+        </button>
+      </template>
+    </div>
+
+    <!-- ===================== TAB 1: SUB DC ===================== -->
+    <div x-show="activeTab === 'subdc'" x-cloak>
+
+      <!-- Action Bar -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Sub DC
+        </button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <button onclick="window.print()" class="bg-[#1e3a5f] hover:bg-[#16304f] text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Print DC
+        </button>
+        <div class="ml-auto">
+          <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold border border-amber-300">SENT — Awaiting Return</span>
+        </div>
+      </div>
+
+      <!-- Header Form -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
+        <h2 class="font-semibold text-[#1e3a5f] mb-3 text-sm uppercase tracking-wide">Subcontract DC Header</h2>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Sub DC No</label>
+            <input type="text" value="SDC-2526-0034" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full bg-gray-50 font-mono font-medium text-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" readonly />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Date</label>
+            <input type="date" value="2026-05-12" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Expected Return</label>
+            <input type="date" value="2026-05-20" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party / Vendor</label>
+            <input type="text" value="Bhagwan Precision Works" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party Code</label>
+            <input type="text" value="BPW" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Process Type</label>
+            <select class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]">
+              <option selected>Thread Cutting</option>
+              <option>Turning</option>
+              <option>Milling</option>
+              <option>Heat Treatment</option>
+              <option>Surface Finish</option>
+              <option>Electroplating</option>
+              <option>NDT Inspection</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Job Card No</label>
+            <input type="text" value="JC-2526-0178" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">OA Reference</label>
+            <input type="text" value="OA-2526-0123" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Remarks</label>
+            <input type="text" placeholder="Optional remarks..." class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="font-semibold text-[#1e3a5f]">Items Sent for Subcontract</h2>
+          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs font-medium transition">+ Add Row</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
+              <tr>
+                <th class="px-3 py-2 text-center w-8">Sr</th>
+                <th class="px-3 py-2 text-left">Component</th>
+                <th class="px-3 py-2 text-left">Drawing No</th>
+                <th class="px-3 py-2 text-left">Material</th>
+                <th class="px-3 py-2 text-center">Qty Sent</th>
+                <th class="px-3 py-2 text-center">Unit</th>
+                <th class="px-3 py-2 text-right">Rate / Unit (₹)</th>
+                <th class="px-3 py-2 text-right">Amount (₹)</th>
+                <th class="px-3 py-2 text-left">Remarks</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <template x-for="(row, i) in subdcRows" :key="i">
+                <tr class="hover:bg-gray-50 transition">
+                  <td class="px-3 py-2.5 text-center text-gray-400 text-xs" x-text="i+1"></td>
+                  <td class="px-3 py-2.5 font-medium text-gray-800" x-text="row.component"></td>
+                  <td class="px-3 py-2.5 font-mono text-blue-700 text-xs" x-text="row.drawing"></td>
+                  <td class="px-3 py-2.5 text-gray-600" x-text="row.material"></td>
+                  <td class="px-3 py-2.5 text-center font-bold text-[#1e3a5f]" x-text="row.qty"></td>
+                  <td class="px-3 py-2.5 text-center text-gray-500" x-text="row.unit"></td>
+                  <td class="px-3 py-2.5 text-right text-gray-700" x-text="'₹ ' + row.rate.toLocaleString('en-IN')"></td>
+                  <td class="px-3 py-2.5 text-right font-semibold text-gray-800" x-text="'₹ ' + (row.qty * row.rate).toLocaleString('en-IN')"></td>
+                  <td class="px-3 py-2.5 text-gray-500 text-xs" x-text="row.remarks"></td>
+                </tr>
+              </template>
+            </tbody>
+            <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+              <tr>
+                <td colspan="7" class="px-3 py-2.5 text-right font-bold text-gray-700">Total Amount:</td>
+                <td class="px-3 py-2.5 text-right font-bold text-[#1e3a5f]">₹ 7,200</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 2: SUB GR ===================== -->
+    <div x-show="activeTab === 'subgr'" x-cloak>
+
+      <!-- Action Bar -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Sub GR
+        </button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <div class="ml-auto">
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold border border-green-300">GR RECORDED</span>
+        </div>
+      </div>
+
+      <!-- GR Header -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
+        <h2 class="font-semibold text-[#1e3a5f] mb-3 text-sm uppercase tracking-wide">Subcontract Goods Receipt Header</h2>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Sub GR No</label>
+            <input type="text" value="SGR-2526-0034" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full bg-gray-50 font-mono font-medium text-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" readonly />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Date</label>
+            <input type="date" value="2026-05-19" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Sub DC Reference</label>
+            <input type="text" value="SDC-2526-0034" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party</label>
+            <input type="text" value="Bhagwan Precision Works" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Received By</label>
+            <input type="text" value="Dinesh K" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party Challan No</label>
+            <input type="text" value="BPW/DC/2526/0045" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Vehicle No</label>
+            <input type="text" value="KA-33-AA-5678" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Received Date / Time</label>
+            <input type="datetime-local" value="2026-05-19T11:30" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Inspection Status</label>
+            <select class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]">
+              <option selected>Partially Accepted</option>
+              <option>Fully Accepted</option>
+              <option>Rejected</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- GR Items Table -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100">
+          <h2 class="font-semibold text-[#1e3a5f]">Receipt Items — Inspection</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
+              <tr>
+                <th class="px-3 py-2 text-center w-8">Sr</th>
+                <th class="px-3 py-2 text-left">Component</th>
+                <th class="px-3 py-2 text-center">Qty Sent</th>
+                <th class="px-3 py-2 text-center">Qty Received</th>
+                <th class="px-3 py-2 text-center">Qty Rejected</th>
+                <th class="px-3 py-2 text-center">Process Quality</th>
+                <th class="px-3 py-2 text-left">Inspection Result</th>
+                <th class="px-3 py-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <template x-for="(row, i) in grRows" :key="i">
+                <tr class="hover:bg-gray-50 transition" :class="row.qtyRejected > 0 ? 'bg-amber-50' : ''">
+                  <td class="px-3 py-2.5 text-center text-gray-400 text-xs" x-text="i+1"></td>
+                  <td class="px-3 py-2.5">
+                    <div class="font-medium text-gray-800" x-text="row.component"></div>
+                    <div class="text-xs text-gray-500 font-mono" x-text="row.drawing"></div>
+                  </td>
+                  <td class="px-3 py-2.5 text-center font-medium" x-text="row.qtySent"></td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span class="font-bold text-green-700" x-text="row.qtyReceived"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span :class="row.qtyRejected > 0 ? 'bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full' : 'text-gray-400'" x-text="row.qtyRejected"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span :class="row.quality === 'OK' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                      class="px-2 py-0.5 rounded-full text-xs font-semibold" x-text="row.quality"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-xs text-gray-600" x-text="row.inspResult"></td>
+                  <td class="px-3 py-2.5 text-center">
+                    <div class="flex gap-1 justify-center">
+                      <button class="bg-green-600 hover:bg-green-500 text-white px-2 py-0.5 rounded text-xs font-medium transition">Accept</button>
+                      <button class="bg-red-100 hover:bg-red-200 text-red-700 px-2 py-0.5 rounded text-xs font-medium transition">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <!-- GR Summary -->
+        <div class="px-4 py-3 border-t border-gray-100 bg-gray-50 flex gap-6 text-xs">
+          <div>Total Sent: <span class="font-bold text-[#1e3a5f]">16 Nos</span></div>
+          <div>Total Received: <span class="font-bold text-green-700">15 Nos</span></div>
+          <div>Total Rejected: <span class="font-bold text-amber-600">1 Nos</span></div>
+          <div class="ml-auto text-gray-500">NCR raised for rejected items — Ref: NCR-2526-078</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 3: PCN TRACKING ===================== -->
+    <div x-show="activeTab === 'pcntrack'" x-cloak>
+
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 mb-4 flex flex-wrap items-end gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">PCN No</label>
+          <input type="text" placeholder="e.g. PCN-2526-0045" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Job Card</label>
+          <input type="text" placeholder="JC-2526-..." class="border border-gray-200 rounded px-3 py-1.5 text-sm w-40 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+          <input type="date" value="2026-04-01" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-36 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+          <input type="date" value="2026-05-26" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-36 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+        </div>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Search</button>
+        <div class="ml-auto flex gap-2 text-xs">
+          <div class="bg-amber-50 border border-amber-200 rounded px-3 py-1.5 text-amber-700">
+            Outstanding: <span class="font-bold">4 PCNs</span>
+          </div>
+          <div class="bg-green-50 border border-green-200 rounded px-3 py-1.5 text-green-700">
+            Completed: <span class="font-bold">4 PCNs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PCN Table -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="font-semibold text-[#1e3a5f]">PCN Tracking — Part Control Notes</h2>
+          <span class="text-xs text-gray-400">8 records</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
+              <tr>
+                <th class="px-3 py-2 text-left">PCN No</th>
+                <th class="px-3 py-2 text-left">Job Card</th>
+                <th class="px-3 py-2 text-left">Component</th>
+                <th class="px-3 py-2 text-center">Heat No</th>
+                <th class="px-3 py-2 text-center">Qty Issued</th>
+                <th class="px-3 py-2 text-center">Qty Received</th>
+                <th class="px-3 py-2 text-center">Balance</th>
+                <th class="px-3 py-2 text-left">Sub Party</th>
+                <th class="px-3 py-2 text-center">Status</th>
+                <th class="px-3 py-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <template x-for="(row, i) in pcnRows" :key="i">
+                <tr class="hover:bg-gray-50 transition" :class="row.balance > 0 ? 'bg-amber-50/40' : ''">
+                  <td class="px-3 py-2.5 font-mono text-[#1e3a5f] font-medium text-xs" x-text="row.pcn"></td>
+                  <td class="px-3 py-2.5 font-mono text-blue-700 text-xs" x-text="row.jc"></td>
+                  <td class="px-3 py-2.5 font-medium text-gray-800" x-text="row.component"></td>
+                  <td class="px-3 py-2.5 text-center font-mono text-xs text-gray-600" x-text="row.heatNo"></td>
+                  <td class="px-3 py-2.5 text-center font-medium" x-text="row.qtyIssued"></td>
+                  <td class="px-3 py-2.5 text-center font-medium text-green-700" x-text="row.qtyReceived"></td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span :class="row.balance > 0 ? 'bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full' : 'text-gray-400'" x-text="row.balance"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-gray-600" x-text="row.party"></td>
+                  <td class="px-3 py-2.5 text-center">
+                    <span :class="{
+                      'bg-green-100 text-green-700': row.status === 'Completed',
+                      'bg-amber-100 text-amber-700': row.status === 'Outstanding',
+                      'bg-gray-100 text-gray-500': row.status === 'Cancelled'
+                    }" class="px-2 py-0.5 rounded-full text-xs font-semibold" x-text="row.status"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-center">
+                    <button @click="openPcnDetail(row)" class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-3 py-0.5 rounded text-xs font-medium transition">View</button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PCN Detail Slide-Over -->
+      <div x-show="pcnDetailOpen" x-cloak
+        class="fixed inset-0 z-50 flex"
+        @click.self="pcnDetailOpen = false">
+        <div class="absolute inset-0 bg-black/30" @click="pcnDetailOpen = false"></div>
+        <div class="absolute right-0 top-12 bottom-0 w-[480px] bg-white shadow-2xl overflow-y-auto z-10"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="transform translate-x-full"
+          x-transition:enter-end="transform translate-x-0"
+          x-transition:leave="transition ease-in duration-150"
+          x-transition:leave-start="transform translate-x-0"
+          x-transition:leave-end="transform translate-x-full">
+
+          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-[#1e3a5f]">
+            <h3 class="font-bold text-white text-base">PCN Detail</h3>
+            <button @click="pcnDetailOpen = false" class="text-white opacity-70 hover:opacity-100 text-xl leading-none">&times;</button>
+          </div>
+
+          <div class="p-5" x-show="selectedPcn">
+            <!-- Basic Info -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span class="text-xs text-gray-500 block">PCN No</span>
+                  <span class="font-bold text-[#1e3a5f] font-mono" x-text="selectedPcn?.pcn"></span>
+                </div>
+                <div>
+                  <span class="text-xs text-gray-500 block">Job Card</span>
+                  <span class="font-bold text-blue-700 font-mono" x-text="selectedPcn?.jc"></span>
+                </div>
+                <div>
+                  <span class="text-xs text-gray-500 block">Component</span>
+                  <span class="font-semibold" x-text="selectedPcn?.component"></span>
+                </div>
+                <div>
+                  <span class="text-xs text-gray-500 block">Heat No</span>
+                  <span class="font-mono" x-text="selectedPcn?.heatNo"></span>
+                </div>
+                <div>
+                  <span class="text-xs text-gray-500 block">Sub Party</span>
+                  <span x-text="selectedPcn?.party"></span>
+                </div>
+                <div>
+                  <span class="text-xs text-gray-500 block">Status</span>
+                  <span :class="selectedPcn?.status === 'Completed' ? 'text-green-700 font-bold' : 'text-amber-700 font-bold'" x-text="selectedPcn?.status"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Qty Summary -->
+            <div class="grid grid-cols-3 gap-3 mb-4">
+              <div class="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                <div class="text-2xl font-extrabold text-[#1e3a5f]" x-text="selectedPcn?.qtyIssued"></div>
+                <div class="text-xs text-gray-500 mt-1">Qty Issued</div>
+              </div>
+              <div class="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                <div class="text-2xl font-extrabold text-green-700" x-text="selectedPcn?.qtyReceived"></div>
+                <div class="text-xs text-gray-500 mt-1">Qty Received</div>
+              </div>
+              <div class="bg-white border rounded-lg p-3 text-center" :class="selectedPcn?.balance > 0 ? 'border-amber-300 bg-amber-50' : 'border-gray-200'">
+                <div :class="selectedPcn?.balance > 0 ? 'text-amber-700' : 'text-gray-400'" class="text-2xl font-extrabold" x-text="selectedPcn?.balance"></div>
+                <div class="text-xs text-gray-500 mt-1">Balance</div>
+              </div>
+            </div>
+
+            <!-- Issue History -->
+            <div class="mb-4">
+              <h4 class="font-semibold text-gray-700 text-sm mb-2">Issue History</h4>
+              <div class="bg-gray-50 rounded border border-gray-200 overflow-hidden">
+                <table class="w-full text-xs">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="px-3 py-1.5 text-left font-semibold text-gray-600">Sub DC No</th>
+                      <th class="px-3 py-1.5 text-center font-semibold text-gray-600">Date</th>
+                      <th class="px-3 py-1.5 text-center font-semibold text-gray-600">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-t border-gray-100">
+                      <td class="px-3 py-1.5 font-mono text-blue-700" x-text="'SDC-2526-' + (parseInt(selectedPcn?.pcn?.slice(-4) || 0) + 20).toString().padStart(4,'0')"></td>
+                      <td class="px-3 py-1.5 text-center">10-May-2026</td>
+                      <td class="px-3 py-1.5 text-center font-bold" x-text="selectedPcn?.qtyIssued"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Receipt History -->
+            <div class="mb-4">
+              <h4 class="font-semibold text-gray-700 text-sm mb-2">Receipt History</h4>
+              <div class="bg-gray-50 rounded border border-gray-200 overflow-hidden">
+                <table class="w-full text-xs">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="px-3 py-1.5 text-left font-semibold text-gray-600">Sub GR No</th>
+                      <th class="px-3 py-1.5 text-center font-semibold text-gray-600">Date</th>
+                      <th class="px-3 py-1.5 text-center font-semibold text-gray-600">Qty Rcvd</th>
+                      <th class="px-3 py-1.5 text-center font-semibold text-gray-600">Qty Rej</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-t border-gray-100" x-show="selectedPcn?.qtyReceived > 0">
+                      <td class="px-3 py-1.5 font-mono text-green-700" x-text="'SGR-2526-' + (parseInt(selectedPcn?.pcn?.slice(-4) || 0) + 20).toString().padStart(4,'0')"></td>
+                      <td class="px-3 py-1.5 text-center">19-May-2026</td>
+                      <td class="px-3 py-1.5 text-center font-bold text-green-700" x-text="selectedPcn?.qtyReceived"></td>
+                      <td class="px-3 py-1.5 text-center font-bold text-amber-600">0</td>
+                    </tr>
+                    <tr class="border-t border-gray-100 text-center text-gray-400 py-2" x-show="selectedPcn?.qtyReceived === 0">
+                      <td colspan="4" class="px-3 py-2">No receipts yet</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Balance Highlight -->
+            <div x-show="selectedPcn?.balance > 0" class="bg-amber-50 border border-amber-300 rounded-lg p-3 text-sm">
+              <div class="font-semibold text-amber-800 mb-1">Outstanding Balance Alert</div>
+              <div class="text-amber-700">
+                <span class="font-bold" x-text="selectedPcn?.balance"></span> nos pending return from
+                <span x-text="selectedPcn?.party"></span>. Please follow up.
+              </div>
+            </div>
+            <div x-show="selectedPcn?.balance === 0" class="bg-green-50 border border-green-300 rounded-lg p-3 text-sm">
+              <div class="font-semibold text-green-800">All material received</div>
+              <div class="text-green-700">PCN closed — no outstanding quantity.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================== TAB 4: BILLING ===================== -->
+    <div x-show="activeTab === 'billing'" x-cloak>
+
+      <!-- Action Bar -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          New Bill
+        </button>
+        <button class="bg-[#0ea5e9] hover:bg-sky-400 text-white px-4 py-1.5 rounded text-sm font-medium transition">Save</button>
+        <button class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded text-sm font-medium transition flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Approve
+        </button>
+        <div class="ml-auto">
+          <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold border border-amber-300">PENDING APPROVAL</span>
+        </div>
+      </div>
+
+      <!-- Bill Header Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
+        <h2 class="font-semibold text-[#1e3a5f] mb-3 text-sm uppercase tracking-wide">Subcontract Bill Header</h2>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Bill No</label>
+            <input type="text" value="SB-2526-0012" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full bg-gray-50 font-mono font-medium text-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" readonly />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Bill Date</label>
+            <input type="date" value="2026-05-25" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party</label>
+            <input type="text" value="Bhagwan Precision Works" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party Invoice No</label>
+            <input type="text" value="BPW/INV/2526/0034" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full font-mono focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Party Invoice Date</label>
+            <input type="date" value="2026-05-22" class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Payment Terms</label>
+            <select class="border border-gray-200 rounded px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]">
+              <option selected>30 Days Net</option>
+              <option>15 Days Net</option>
+              <option>Immediate</option>
+              <option>45 Days Net</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bill Items -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-4">
+        <div class="px-4 py-3 border-b border-gray-100">
+          <h2 class="font-semibold text-[#1e3a5f]">Bill Line Items</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
+              <tr>
+                <th class="px-3 py-2 text-center w-8">Sr</th>
+                <th class="px-3 py-2 text-left">Sub DC No</th>
+                <th class="px-3 py-2 text-left">Component</th>
+                <th class="px-3 py-2 text-left">Process</th>
+                <th class="px-3 py-2 text-center">Qty</th>
+                <th class="px-3 py-2 text-right">Rate / Unit (₹)</th>
+                <th class="px-3 py-2 text-right">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <template x-for="(row, i) in billRows" :key="i">
+                <tr class="hover:bg-gray-50 transition">
+                  <td class="px-3 py-2.5 text-center text-gray-400 text-xs" x-text="i+1"></td>
+                  <td class="px-3 py-2.5 font-mono text-[#1e3a5f] text-xs font-medium" x-text="row.subdcNo"></td>
+                  <td class="px-3 py-2.5 font-medium text-gray-800" x-text="row.component"></td>
+                  <td class="px-3 py-2.5">
+                    <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium" x-text="row.process"></span>
+                  </td>
+                  <td class="px-3 py-2.5 text-center font-medium" x-text="row.qty"></td>
+                  <td class="px-3 py-2.5 text-right text-gray-700" x-text="'₹ ' + row.rate.toLocaleString('en-IN')"></td>
+                  <td class="px-3 py-2.5 text-right font-semibold text-gray-800" x-text="'₹ ' + (row.qty * row.rate).toLocaleString('en-IN')"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payment Summary + Approve -->
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- Notes -->
+        <div class="col-span-2 bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+          <h3 class="font-semibold text-gray-700 text-sm mb-2">Notes / Remarks</h3>
+          <textarea rows="3" class="border border-gray-200 rounded w-full px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] resize-none" placeholder="Add payment or processing notes...">Payment as per agreed rates for thread cutting batch May-2026. TDS to be deducted as per section 194C.</textarea>
+          <div class="mt-3 flex gap-2 text-xs">
+            <div class="bg-gray-50 border border-gray-200 rounded px-3 py-1.5 text-gray-600">
+              Verified by: <span class="font-semibold">Store Incharge</span>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded px-3 py-1.5 text-gray-600">
+              GR Ref: <span class="font-semibold">SGR-2526-0034</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amount Summary -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+          <h3 class="font-semibold text-gray-700 text-sm mb-3">Payment Summary</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-500">Sub Total</span>
+              <span class="font-medium">₹ 28,500</span>
+            </div>
+            <div class="flex justify-between border-t border-gray-100 pt-2">
+              <span class="text-gray-500">GST (RCM basis)</span>
+              <span class="font-medium text-gray-400">₹ 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">TDS @ 2% (Sec 194C)</span>
+              <span class="font-medium text-red-600">- ₹ 570</span>
+            </div>
+            <div class="flex justify-between border-t-2 border-gray-300 pt-2 text-base">
+              <span class="font-bold text-gray-800">Net Payable</span>
+              <span class="font-extrabold text-[#1e3a5f]">₹ 27,930</span>
+            </div>
+          </div>
+          <button @click="showApprovalSuccess = true; setTimeout(() => showApprovalSuccess = false, 3000)"
+            class="mt-4 w-full bg-amber-600 hover:bg-amber-500 text-white py-2 rounded font-semibold text-sm transition flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Approve for Payment
+          </button>
+          <div class="mt-2 text-center text-xs text-gray-400">Requires Finance Manager approval</div>
+        </div>
+
+      </div>
+
+      <!-- Approval Toast -->
+      <div x-show="showApprovalSuccess" x-transition x-cloak class="fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-xl text-sm font-medium z-50">
+        Bill SB-2526-0012 sent for approval!
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    function subcontractApp() {
+      return {
+        activeTab: 'subdc',
+        pcnDetailOpen: false,
+        selectedPcn: null,
+        showApprovalSuccess: false,
+
+        tabs: [
+          { id: 'subdc',    label: 'Sub DC' },
+          { id: 'subgr',    label: 'Sub GR' },
+          { id: 'pcntrack', label: 'PCN Tracking' },
+          { id: 'billing',  label: 'Billing' },
+        ],
+
+        subdcRows: [
+          { component: 'Valve Body CS 6"',    drawing: 'VE-VB-6-001', material: 'A216 WCB',  qty: 4, unit: 'Nos', rate: 450, remarks: 'Thread M20x2.5 both ends' },
+          { component: 'Valve Body CS 4"',    drawing: 'VE-VB-4-001', material: 'A216 WCB',  qty: 6, unit: 'Nos', rate: 320, remarks: 'Thread M16x2 both ends' },
+          { component: 'Bonnet SS316 2"',     drawing: 'VE-BN-2-001', material: 'A182 F316', qty: 4, unit: 'Nos', rate: 280, remarks: 'NPT 1/2" threads' },
+          { component: 'End Cap 1" CS',       drawing: 'VE-EC-1-001', material: 'A105 N',    qty: 8, unit: 'Nos', rate: 85,  remarks: 'Both ends M12x1.5' },
+        ],
+
+        grRows: [
+          { component: 'Valve Body CS 6"',    drawing: 'VE-VB-6-001', qtySent: 4, qtyReceived: 4, qtyRejected: 0, quality: 'OK',   inspResult: 'Threads gauged OK, surface finish acceptable' },
+          { component: 'Valve Body CS 4"',    drawing: 'VE-VB-4-001', qtySent: 6, qtyReceived: 5, qtyRejected: 1, quality: 'Partial', inspResult: '1 no rejected — thread depth insufficient (NCR-2526-078)' },
+          { component: 'Bonnet SS316 2"',     drawing: 'VE-BN-2-001', qtySent: 4, qtyReceived: 4, qtyRejected: 0, quality: 'OK',   inspResult: 'NPT threads verified with gauge — all OK' },
+          { component: 'End Cap 1" CS',       drawing: 'VE-EC-1-001', qtySent: 8, qtyReceived: 8, qtyRejected: 0, quality: 'OK',   inspResult: 'M12 threads OK, deburring done' },
+        ],
+
+        pcnRows: [
+          { pcn:'PCN-2526-0041', jc:'JC-2526-0165', component:'Valve Body CS 8"',   heatNo:'HT-4521A', qtyIssued:6, qtyReceived:6, balance:0, party:'Bhagwan PW',   status:'Completed' },
+          { pcn:'PCN-2526-0042', jc:'JC-2526-0166', component:'Globe Valve Stem 2"', heatNo:'HT-4522B', qtyIssued:10, qtyReceived:10, balance:0, party:'Bhagwan PW', status:'Completed' },
+          { pcn:'PCN-2526-0043', jc:'JC-2526-0167', component:'Bonnet Flange 4"',   heatNo:'HT-4523C', qtyIssued:8, qtyReceived:8, balance:0, party:'Ram Engg',    status:'Completed' },
+          { pcn:'PCN-2526-0044', jc:'JC-2526-0168', component:'End Cap Assembly 3"', heatNo:'HT-4524D', qtyIssued:5, qtyReceived:5, balance:0, party:'Ram Engg',    status:'Completed' },
+          { pcn:'PCN-2526-0045', jc:'JC-2526-0178', component:'Valve Body CS 6"',   heatNo:'HT-4531A', qtyIssued:4, qtyReceived:4, balance:0, party:'Bhagwan PW',   status:'Completed' },
+          { pcn:'PCN-2526-0046', jc:'JC-2526-0179', component:'Valve Body CS 4"',   heatNo:'HT-4532B', qtyIssued:6, qtyReceived:5, balance:1, party:'Bhagwan PW',   status:'Outstanding' },
+          { pcn:'PCN-2526-0047', jc:'JC-2526-0180', component:'Check Valve Body 4"', heatNo:'HT-4535C', qtyIssued:8, qtyReceived:4, balance:4, party:'Shiv Works',  status:'Outstanding' },
+          { pcn:'PCN-2526-0048', jc:'JC-2526-0181', component:'Ball Valve Body SS',  heatNo:'HT-4536D', qtyIssued:12, qtyReceived:0, balance:12, party:'Ram Engg',   status:'Outstanding' },
+        ],
+
+        billRows: [
+          { subdcNo:'SDC-2526-0028', component:'Valve Body CS 8"',    process:'Thread Cutting', qty:6,  rate:450 },
+          { subdcNo:'SDC-2526-0029', component:'Globe Valve Stem 2"',  process:'Turning',        qty:10, rate:280 },
+          { subdcNo:'SDC-2526-0030', component:'Bonnet Flange 4"',     process:'Milling',        qty:8,  rate:520 },
+          { subdcNo:'SDC-2526-0031', component:'End Cap Assembly 3"',  process:'Thread Cutting', qty:5,  rate:200 },
+          { subdcNo:'SDC-2526-0034', component:'Valve Body CS 6"',     process:'Thread Cutting', qty:4,  rate:450 },
+        ],
+
+        openPcnDetail(row) {
+          this.selectedPcn = row;
+          this.pcnDetailOpen = true;
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

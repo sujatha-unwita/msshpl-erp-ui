@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSSHPL ERP — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#1e3a5f',
+              dark: '#1a3050',
+              deeper: '#0f2034',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 16px; border-radius: 8px; margin: 2px 8px;
+      font-size: 13px; color: #94a3b8; cursor: pointer;
+      transition: background 0.15s, color 0.15s; text-decoration: none;
+    }
+    .sidebar-link:hover { background: rgba(14,165,233,0.15); color: #e2e8f0; }
+    .sidebar-link.active { background: rgba(14,165,233,0.25); color: #fff; border-left: 3px solid #0ea5e9; padding-left: 13px; }
+
+    .kpi-card { transition: transform 0.15s, box-shadow 0.15s; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+    .module-tile { transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; text-decoration: none; }
+    .module-tile:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.12); }
+
+    .bar-fill { transition: height 0.8s ease; }
+
+    .badge { display:inline-flex; align-items:center; padding: 2px 9px; border-radius: 9999px; font-size:11px; font-weight:600; }
+  </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen" x-data="dashboard()">
+
+<!-- ==================== TOP NAVBAR ==================== -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 h-14 shadow-md" style="background-color: #1e3a5f;">
+
+  <!-- Left: Logo + title -->
+  <div class="flex items-center gap-3">
+    <!-- Hamburger (mobile) -->
+    <button @click="sidebarOpen = !sidebarOpen" class="text-white mr-1 p-1 rounded hover:bg-white hover:bg-opacity-10 transition lg:hidden">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <!-- Brand icon -->
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #0ea5e9;">
+      <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
+        <path d="M20.5 2h7l1.5 6.3a14 14 0 0 1 4.2 1.7l5.8-2.9 4.9 4.9-2.9 5.8a14 14 0 0 1 1.7 4.2L49 23.5v7l-6.3 1.5a14 14 0 0 1-1.7 4.2l2.9 5.8-4.9 4.9-5.8-2.9a14 14 0 0 1-4.2 1.7L27.5 52h-7l-1.5-6.3a14 14 0 0 1-4.2-1.7l-5.8 2.9-4.9-4.9 2.9-5.8a14 14 0 0 1-1.7-4.2L-1 30.5v-7l6.3-1.5a14 14 0 0 1 3.3-8l-3.8-7.6 9.6-9.6 7.6 3.8a14 14 0 0 1 4.2-1.7z" fill="white" opacity="0.3"/>
+        <circle cx="24" cy="24" r="7" fill="white" opacity="0.9"/>
+      </svg>
+    </div>
+    <div>
+      <div class="text-white font-black text-base tracking-widest leading-tight">MSSHPL ERP</div>
+    </div>
+    <div class="hidden sm:block w-px h-6 bg-white bg-opacity-20 mx-2"></div>
+    <div class="hidden sm:block text-slate-400 text-xs font-medium">Veeyes Engineering</div>
+  </div>
+
+  <!-- Right: Notifications + User -->
+  <div class="flex items-center gap-3">
+
+    <!-- Notification bell -->
+    <div class="relative" x-data="{ notifOpen: false }">
+      <button @click="notifOpen = !notifOpen" @click.away="notifOpen = false"
+        class="relative w-9 h-9 flex items-center justify-center rounded-full text-slate-300 hover:bg-white hover:bg-opacity-10 transition">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center" style="background-color:#ef4444; font-size:10px;">3</span>
+      </button>
+      <!-- Notification dropdown -->
+      <div x-show="notifOpen" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+        class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50" style="top:100%">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <span class="font-semibold text-slate-700 text-sm">Notifications</span>
+          <span class="text-xs text-slate-400">3 unread</span>
+        </div>
+        <div class="divide-y divide-slate-50">
+          <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer">
+            <div class="text-sm font-medium text-slate-700">OA-2526-0128 Approved</div>
+            <div class="text-xs text-slate-400 mt-0.5">Sales order from BHEL confirmed · 10 min ago</div>
+          </div>
+          <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer">
+            <div class="text-sm font-medium text-slate-700">GRN-0092 Pending QA</div>
+            <div class="text-xs text-slate-400 mt-0.5">Incoming material awaiting inspection · 45 min ago</div>
+          </div>
+          <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer">
+            <div class="text-sm font-medium text-slate-700">Dispatch Alert: OA-2526-0119</div>
+            <div class="text-xs text-slate-400 mt-0.5">Delivery date overdue for NTPC order · 2 hrs ago</div>
+          </div>
+        </div>
+        <div class="px-4 py-2 bg-slate-50 text-center">
+          <a href="#" class="text-xs font-medium" style="color:#0ea5e9;">View all notifications</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- User menu -->
+    <div class="relative" x-data="{ userOpen: false }">
+      <button @click="userOpen = !userOpen" @click.away="userOpen = false"
+        class="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-white hover:bg-opacity-10 transition">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background-color:#0ea5e9;">SA</div>
+        <div class="hidden sm:block text-left">
+          <div class="text-white text-xs font-semibold leading-tight">Sujatha Admin</div>
+          <div class="text-slate-400 text-xs leading-tight">Super Admin</div>
+        </div>
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <!-- User dropdown -->
+      <div x-show="userOpen" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+        class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50" style="top:100%">
+        <div class="px-4 py-3 border-b border-slate-100">
+          <div class="font-semibold text-slate-700 text-sm">Sujatha Admin</div>
+          <div class="text-xs text-slate-400">sujatha.admin@msshpl.com</div>
+        </div>
+        <div class="py-1">
+          <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            My Profile
+          </a>
+          <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Settings
+          </a>
+        </div>
+        <div class="border-t border-slate-100 py-1">
+          <a href="index.html" class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside id="sidebar"
+  class="fixed left-0 z-40 flex flex-col overflow-y-auto transition-transform duration-200"
+  :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+  style="top:56px; bottom:0; width:220px; background-color:#1a3050;">
+
+  <!-- Sidebar header -->
+  <div class="px-4 py-3 border-b border-white border-opacity-5">
+    <span class="text-slate-500 text-xs font-semibold uppercase tracking-widest">Navigation</span>
+  </div>
+
+  <nav class="flex-1 py-2">
+    <a href="module-1-admin.html" class="sidebar-link">
+      <span class="text-base leading-none">🔐</span>
+      <span>Admin &amp; Access</span>
+    </a>
+    <a href="module-2-masters.html" class="sidebar-link">
+      <span class="text-base leading-none">📋</span>
+      <span>Master Data</span>
+    </a>
+    <a href="module-3-sales.html" class="sidebar-link">
+      <span class="text-base leading-none">📦</span>
+      <span>Sales &amp; Orders</span>
+    </a>
+    <a href="module-4-purchase.html" class="sidebar-link">
+      <span class="text-base leading-none">🛒</span>
+      <span>Purchase</span>
+    </a>
+    <a href="module-5-production.html" class="sidebar-link">
+      <span class="text-base leading-none">⚙️</span>
+      <span>Production</span>
+    </a>
+    <a href="module-6-quality.html" class="sidebar-link">
+      <span class="text-base leading-none">✅</span>
+      <span>Quality</span>
+    </a>
+    <a href="module-7-dispatch.html" class="sidebar-link">
+      <span class="text-base leading-none">🚚</span>
+      <span>Dispatch &amp; Invoicing</span>
+    </a>
+    <a href="module-8-subcontract.html" class="sidebar-link">
+      <span class="text-base leading-none">🔧</span>
+      <span>Subcontract</span>
+    </a>
+    <a href="module-9-inventory.html" class="sidebar-link">
+      <span class="text-base leading-none">📊</span>
+      <span>Inventory &amp; Stock</span>
+    </a>
+    <a href="module-10-mis.html" class="sidebar-link">
+      <span class="text-base leading-none">📈</span>
+      <span>MIS &amp; Reports</span>
+    </a>
+  </nav>
+
+  <!-- Sidebar footer -->
+  <div class="p-4 border-t border-white border-opacity-5">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 rounded-full bg-green-400"></div>
+      <span class="text-slate-500 text-xs">System Online · v3.0</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Sidebar overlay (mobile) -->
+<div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black bg-opacity-40 z-30 lg:hidden"></div>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main class="lg:ml-[220px] pt-14 min-h-screen bg-slate-50">
+  <div class="p-6 space-y-6 max-w-[1400px]">
+
+    <!-- ---- Welcome bar ---- -->
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Good Morning, Sujatha! 👋</h1>
+        <p class="text-slate-500 text-sm mt-0.5">Tuesday, 26 May 2026 &nbsp;·&nbsp; MSSHPL Unit 1</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 shadow-sm">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>FY 2025–26 &nbsp; Q4</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm text-green-700 shadow-sm">
+          <div class="w-2 h-2 rounded-full bg-green-500"></div>
+          <span>All Systems Operational</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- KPI Cards ---- -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- Pending Orders -->
+      <div class="kpi-card bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2">Pending Orders</div>
+            <div class="text-3xl font-black text-slate-800">48</div>
+            <div class="text-xs text-slate-400 mt-1">Sales Orders Active</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color:#eff6ff;">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center gap-1 text-xs text-blue-600">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+          <span>+6 from yesterday</span>
+        </div>
+      </div>
+
+      <!-- In Production -->
+      <div class="kpi-card bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2">In Production</div>
+            <div class="text-3xl font-black text-slate-800">23</div>
+            <div class="text-xs text-slate-400 mt-1">Work Orders Running</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color:#fffbeb;">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center gap-1 text-xs text-amber-600">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+          <span>+2 started today</span>
+        </div>
+      </div>
+
+      <!-- Ready to Dispatch -->
+      <div class="kpi-card bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2">Ready to Dispatch</div>
+            <div class="text-3xl font-black text-slate-800">7</div>
+            <div class="text-xs text-slate-400 mt-1">Orders QA Cleared</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color:#f0fdf4;">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#16a34a" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center gap-1 text-xs text-green-600">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>3 dispatched today</span>
+        </div>
+      </div>
+
+      <!-- Overdue -->
+      <div class="kpi-card bg-white rounded-xl p-5 border border-red-100 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2">Overdue</div>
+            <div class="text-3xl font-black text-red-600">5</div>
+            <div class="text-xs text-slate-400 mt-1">Past Delivery Date</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color:#fef2f2;">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center gap-1 text-xs text-red-500">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 9 12 15 6 9"/></svg>
+          <span>Needs urgent action</span>
+        </div>
+      </div>
+
+    </div><!-- end KPI grid -->
+
+    <!-- ---- Quick Access Module Tiles ---- -->
+    <div>
+      <h2 class="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3">Quick Access</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+
+        <a href="module-1-admin.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">🔐</div>
+          <div class="text-xs font-semibold text-slate-700">Admin &amp; Access</div>
+          <div class="text-xs text-slate-400">12 users active</div>
+        </a>
+
+        <a href="module-2-masters.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">📋</div>
+          <div class="text-xs font-semibold text-slate-700">Master Data</div>
+          <div class="text-xs text-slate-400">842 items</div>
+        </a>
+
+        <a href="module-3-sales.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">📦</div>
+          <div class="text-xs font-semibold text-slate-700">Sales &amp; Orders</div>
+          <div class="badge mt-0.5" style="background:#eff6ff;color:#2563eb;">48 pending</div>
+        </a>
+
+        <a href="module-4-purchase.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">🛒</div>
+          <div class="text-xs font-semibold text-slate-700">Purchase</div>
+          <div class="text-xs text-slate-400">9 POs open</div>
+        </a>
+
+        <a href="module-5-production.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">⚙️</div>
+          <div class="text-xs font-semibold text-slate-700">Production</div>
+          <div class="badge mt-0.5" style="background:#fffbeb;color:#d97706;">23 WOs live</div>
+        </a>
+
+        <a href="module-6-quality.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">✅</div>
+          <div class="text-xs font-semibold text-slate-700">Quality</div>
+          <div class="text-xs text-slate-400">4 inspections due</div>
+        </a>
+
+        <a href="module-7-dispatch.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">🚚</div>
+          <div class="text-xs font-semibold text-slate-700">Dispatch &amp; Invoice</div>
+          <div class="badge mt-0.5" style="background:#f0fdf4;color:#16a34a;">7 ready</div>
+        </a>
+
+        <a href="module-8-subcontract.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">🔧</div>
+          <div class="text-xs font-semibold text-slate-700">Subcontract</div>
+          <div class="text-xs text-slate-400">6 jobs out</div>
+        </a>
+
+        <a href="module-9-inventory.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">📊</div>
+          <div class="text-xs font-semibold text-slate-700">Inventory &amp; Stock</div>
+          <div class="text-xs text-slate-400">3 low-stock alerts</div>
+        </a>
+
+        <a href="module-10-mis.html" class="module-tile bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center flex flex-col items-center gap-2">
+          <div class="text-2xl">📈</div>
+          <div class="text-xs font-semibold text-slate-700">MIS &amp; Reports</div>
+          <div class="text-xs text-slate-400">Last run: today</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ---- Recent Activity Table ---- -->
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-bold text-slate-600 uppercase tracking-wider">Recent Activity</h2>
+        <a href="#" class="text-xs font-medium" style="color:#0ea5e9;">View full audit log →</a>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-slate-100" style="background-color:#f8fafc;">
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Reference</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Module</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Timestamp</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">OA-2526-0128</td>
+                <td class="px-4 py-3 text-slate-600">Order created for BHEL — Gate Valve 6" 150# CS (Qty: 20)</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#eff6ff;color:#2563eb;">Sales</span></td>
+                <td class="px-4 py-3 text-slate-500">Ravi Kumar</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">26 May 2026 &nbsp;09:42</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#f0fdf4;color:#16a34a;">Confirmed</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">GRN-0092</td>
+                <td class="px-4 py-3 text-slate-600">Incoming material received — SS 316 Forged Body (50 pcs)</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#faf5ff;color:#7c3aed;">Purchase</span></td>
+                <td class="px-4 py-3 text-slate-500">Meena Stores</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">26 May 2026 &nbsp;09:15</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#fffbeb;color:#d97706;">QA Pending</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">WO-2526-0341</td>
+                <td class="px-4 py-3 text-slate-600">Production started — Ball Valve 2" 300# SS for NTPC</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#fff7ed;color:#c2410c;">Production</span></td>
+                <td class="px-4 py-3 text-slate-500">Anand CNC</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">26 May 2026 &nbsp;08:55</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#fffbeb;color:#d97706;">In Process</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">QAR-0089</td>
+                <td class="px-4 py-3 text-slate-600">QA inspection passed — Check Valve 4" 600# for IOCL</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#f0fdf4;color:#166534;">Quality</span></td>
+                <td class="px-4 py-3 text-slate-500">Kavitha QA</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">25 May 2026 &nbsp;17:30</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#f0fdf4;color:#16a34a;">Approved</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">DC-2526-0211</td>
+                <td class="px-4 py-3 text-slate-600">Dispatch challan issued for ONGC — Butterfly Valve 8" (Qty: 6)</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#ecfdf5;color:#065f46;">Dispatch</span></td>
+                <td class="px-4 py-3 text-slate-500">Priya Dispatch</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">25 May 2026 &nbsp;16:10</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#f0fdf4;color:#16a34a;">Dispatched</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">SC-OUT-0045</td>
+                <td class="px-4 py-3 text-slate-600">Subcontract sent to Vijaya Engineering — Machining (12 pcs)</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#fdf4ff;color:#7e22ce;">Subcontract</span></td>
+                <td class="px-4 py-3 text-slate-500">Rajesh Ops</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">25 May 2026 &nbsp;14:45</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#fffbeb;color:#d97706;">Awaiting</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">INV-2526-0189</td>
+                <td class="px-4 py-3 text-slate-600">Tax Invoice raised — BHEL, ₹8,42,500 (GST incl.)</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#ecfdf5;color:#065f46;">Dispatch</span></td>
+                <td class="px-4 py-3 text-slate-500">Sujatha Admin</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">25 May 2026 &nbsp;12:20</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#f0fdf4;color:#16a34a;">Issued</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-800">PO-2526-0078</td>
+                <td class="px-4 py-3 text-slate-600">PO raised to Bharat Forgings — CS Flanges A105 (200 pcs)</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#faf5ff;color:#7c3aed;">Purchase</span></td>
+                <td class="px-4 py-3 text-slate-500">Suresh Purchase</td>
+                <td class="px-4 py-3 text-slate-400 text-xs">25 May 2026 &nbsp;10:05</td>
+                <td class="px-4 py-3"><span class="badge" style="background:#eff6ff;color:#2563eb;">Sent</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- Bottom Panels: Bar Chart + Donut ---- -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Pending Orders by Customer Bar Chart -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-slate-700">Pending Orders by Customer</h3>
+          <span class="text-xs text-slate-400 bg-slate-100 rounded-full px-3 py-1">Top 5</span>
+        </div>
+
+        <div class="flex items-end gap-4 h-44 px-2">
+          <!-- BHEL -->
+          <div class="flex flex-col items-center gap-1.5 flex-1">
+            <div class="text-xs font-bold text-slate-700">14</div>
+            <div class="w-full rounded-t-md relative overflow-hidden" style="height:112px;background:#e0f2fe;">
+              <div class="w-full rounded-t-md absolute bottom-0" style="height:112px;background:linear-gradient(to top,#0ea5e9,#38bdf8);"></div>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">BHEL</div>
+          </div>
+          <!-- NTPC -->
+          <div class="flex flex-col items-center gap-1.5 flex-1">
+            <div class="text-xs font-bold text-slate-700">11</div>
+            <div class="w-full rounded-t-md relative overflow-hidden" style="height:88px;background:#e0f2fe;">
+              <div class="w-full rounded-t-md absolute bottom-0" style="height:88px;background:linear-gradient(to top,#0ea5e9,#38bdf8);"></div>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">NTPC</div>
+          </div>
+          <!-- IOCL -->
+          <div class="flex flex-col items-center gap-1.5 flex-1">
+            <div class="text-xs font-bold text-slate-700">9</div>
+            <div class="w-full rounded-t-md relative overflow-hidden" style="height:72px;background:#e0f2fe;">
+              <div class="w-full rounded-t-md absolute bottom-0" style="height:72px;background:linear-gradient(to top,#f59e0b,#fcd34d);"></div>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">IOCL</div>
+          </div>
+          <!-- ONGC -->
+          <div class="flex flex-col items-center gap-1.5 flex-1">
+            <div class="text-xs font-bold text-slate-700">8</div>
+            <div class="w-full rounded-t-md relative overflow-hidden" style="height:64px;background:#e0f2fe;">
+              <div class="w-full rounded-t-md absolute bottom-0" style="height:64px;background:linear-gradient(to top,#8b5cf6,#a78bfa);"></div>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">ONGC</div>
+          </div>
+          <!-- GAIL -->
+          <div class="flex flex-col items-center gap-1.5 flex-1">
+            <div class="text-xs font-bold text-slate-700">6</div>
+            <div class="w-full rounded-t-md relative overflow-hidden" style="height:48px;background:#e0f2fe;">
+              <div class="w-full rounded-t-md absolute bottom-0" style="height:48px;background:linear-gradient(to top,#10b981,#34d399);"></div>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">GAIL</div>
+          </div>
+        </div>
+
+        <div class="mt-3 border-t border-slate-100 pt-3 flex items-center gap-4 flex-wrap">
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#0ea5e9;"></span> PSU — Petroleum</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#8b5cf6;"></span> PSU — Oil &amp; Gas</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#10b981;"></span> PSU — Gas Infra</span>
+        </div>
+      </div>
+
+      <!-- Production Status Donut-style -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-slate-700">Production Status</h3>
+          <span class="text-xs text-slate-400 bg-slate-100 rounded-full px-3 py-1">This Month</span>
+        </div>
+
+        <!-- Donut SVG -->
+        <div class="flex items-center gap-6">
+          <div class="relative flex-shrink-0">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="54" fill="none" stroke="#f1f5f9" stroke-width="18"/>
+              <!-- Completed: 67% => 339.3 of 339.3 total -->
+              <!-- stroke-dasharray = circumference = 2*pi*54 ≈ 339.3 -->
+              <!-- Completed 67% = 227.3, offset = 0 -->
+              <circle cx="70" cy="70" r="54" fill="none" stroke="#0ea5e9" stroke-width="18"
+                stroke-dasharray="227.3 339.3" stroke-dashoffset="0"
+                transform="rotate(-90 70 70)" stroke-linecap="butt"/>
+              <!-- In Progress: 18% = 61.1 -->
+              <circle cx="70" cy="70" r="54" fill="none" stroke="#f59e0b" stroke-width="18"
+                stroke-dasharray="61.1 339.3" stroke-dashoffset="-227.3"
+                transform="rotate(-90 70 70)" stroke-linecap="butt"/>
+              <!-- Delayed: 8% = 27.1 -->
+              <circle cx="70" cy="70" r="54" fill="none" stroke="#ef4444" stroke-width="18"
+                stroke-dasharray="27.1 339.3" stroke-dashoffset="-288.4"
+                transform="rotate(-90 70 70)" stroke-linecap="butt"/>
+              <!-- Not Started: 7% = 23.8 (rest of circle) -->
+              <circle cx="70" cy="70" r="54" fill="none" stroke="#e2e8f0" stroke-width="18"
+                stroke-dasharray="23.8 339.3" stroke-dashoffset="-315.5"
+                transform="rotate(-90 70 70)" stroke-linecap="butt"/>
+              <!-- Center label -->
+              <text x="70" y="65" text-anchor="middle" fill="#1e293b" font-size="22" font-weight="900" font-family="system-ui">67%</text>
+              <text x="70" y="82" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="system-ui">Complete</text>
+            </svg>
+          </div>
+
+          <div class="flex-1 space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full inline-block" style="background:#0ea5e9;"></span>
+                  <span class="text-xs text-slate-600">Completed</span>
+                </div>
+                <span class="text-xs font-bold text-slate-700">67% &nbsp;<span class="text-slate-400 font-normal">(31 WOs)</span></span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full"><div class="h-1.5 rounded-full" style="width:67%;background:#0ea5e9;"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full inline-block" style="background:#f59e0b;"></span>
+                  <span class="text-xs text-slate-600">In Progress</span>
+                </div>
+                <span class="text-xs font-bold text-slate-700">18% &nbsp;<span class="text-slate-400 font-normal">(8 WOs)</span></span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full"><div class="h-1.5 rounded-full" style="width:18%;background:#f59e0b;"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full inline-block" style="background:#ef4444;"></span>
+                  <span class="text-xs text-slate-600">Delayed</span>
+                </div>
+                <span class="text-xs font-bold text-slate-700">8% &nbsp;<span class="text-slate-400 font-normal">(4 WOs)</span></span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full"><div class="h-1.5 rounded-full" style="width:8%;background:#ef4444;"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full inline-block" style="background:#cbd5e1;"></span>
+                  <span class="text-xs text-slate-600">Not Started</span>
+                </div>
+                <span class="text-xs font-bold text-slate-700">7% &nbsp;<span class="text-slate-400 font-normal">(3 WOs)</span></span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full"><div class="h-1.5 rounded-full" style="width:7%;background:#cbd5e1;"></div></div>
+            </div>
+            <div class="pt-1 border-t border-slate-100 text-xs text-slate-400">
+              Total: 46 Work Orders · May 2026
+            </div>
+          </div>
+        </div>
+
+        <!-- Production items breakdown -->
+        <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+          <div class="bg-slate-50 rounded-lg p-2">
+            <div class="text-sm font-black text-slate-700">Gate Valves</div>
+            <div class="text-xs text-slate-400 mt-0.5">18 orders</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2">
+            <div class="text-sm font-black text-slate-700">Ball Valves</div>
+            <div class="text-xs text-slate-400 mt-0.5">16 orders</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2">
+            <div class="text-sm font-black text-slate-700">Check / Others</div>
+            <div class="text-xs text-slate-400 mt-0.5">12 orders</div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- end bottom panels -->
+
+    <!-- Page footer -->
+    <div class="text-center py-4 text-xs text-slate-400 border-t border-slate-200">
+      MSSHPL ERP v3.0 &nbsp;|&nbsp; &copy; 2026 Veeyes Engineering &nbsp;|&nbsp; All rights reserved
+    </div>
+
+  </div><!-- end inner content -->
+</main>
+
+<script>
+  function dashboard() {
+    return {
+      sidebarOpen: false,
+    }
+  }
+</script>
+
+</body>
+</html>

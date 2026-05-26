@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin &amp; System Access — MSSHPL ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-slate-100 text-sm font-sans"
+  x-data="{
+    activeTab: 'userrights',
+    editRightsUser: null,
+    users: [
+      { id: 'admin',    name: 'Sujatha Admin', role: 'Admin',       status: 'Active', lastLogin: '26 May 2026, 09:12' },
+      { id: 'sales01',  name: 'Ravi Kumar',    role: 'Sales',       status: 'Active', lastLogin: '26 May 2026, 08:55' },
+      { id: 'pur01',    name: 'Meena Devi',    role: 'Purchase',    status: 'Active', lastLogin: '26 May 2026, 09:01' },
+      { id: 'prod01',   name: 'Suresh B',      role: 'Production',  status: 'Active', lastLogin: '25 May 2026, 17:45' },
+      { id: 'qa01',     name: 'Priya R',       role: 'Quality',     status: 'Active', lastLogin: '26 May 2026, 08:30' },
+      { id: 'stores01', name: 'Dinesh K',      role: 'Stores',      status: 'Active', lastLogin: '26 May 2026, 07:58' },
+      { id: 'accts01',  name: 'Lakshmi',       role: 'Accounts',    status: 'Active', lastLogin: '25 May 2026, 18:10' },
+      { id: 'mgmt01',   name: 'Mr. Sharma',    role: 'Management',  status: 'Active', lastLogin: '24 May 2026, 14:22' }
+    ],
+    rights: {
+      'Admin':      { sales:true,  purchase:true,  production:true,  quality:true,  dispatch:true,  subcontract:true,  inventory:true,  mis:true  },
+      'Sales':      { sales:true,  purchase:false, production:false, quality:false, dispatch:true,  subcontract:false, inventory:false, mis:false },
+      'Purchase':   { sales:false, purchase:true,  production:false, quality:false, dispatch:false, subcontract:true,  inventory:true,  mis:false },
+      'Production': { sales:false, purchase:false, production:true,  quality:false, dispatch:false, subcontract:true,  inventory:true,  mis:false },
+      'Quality':    { sales:false, purchase:false, production:false, quality:true,  dispatch:false, subcontract:false, inventory:false, mis:false },
+      'Stores':     { sales:false, purchase:true,  production:false, quality:false, dispatch:true,  subcontract:false, inventory:true,  mis:false },
+      'Accounts':   { sales:true,  purchase:true,  production:false, quality:false, dispatch:true,  subcontract:false, inventory:false, mis:true  },
+      'Management': { sales:true,  purchase:true,  production:true,  quality:true,  dispatch:true,  subcontract:true,  inventory:true,  mis:true  }
+    },
+    accessLevels: {
+      'Admin':      { sales:'Full', purchase:'Full',  production:'Full',  quality:'Full',  dispatch:'Full',  subcontract:'Full',  inventory:'Full',  mis:'Full'  },
+      'Sales':      { sales:'Full', purchase:'View',  production:'View',  quality:'View',  dispatch:'Edit',  subcontract:'—',     inventory:'View',  mis:'View' },
+      'Purchase':   { sales:'View', purchase:'Full',  production:'View',  quality:'View',  dispatch:'—',     subcontract:'Edit',  inventory:'Edit',  mis:'View' },
+      'Production': { sales:'View', purchase:'View',  production:'Full',  quality:'Edit',  dispatch:'View',  subcontract:'Edit',  inventory:'Edit',  mis:'View' },
+      'Quality':    { sales:'—',    purchase:'—',     production:'View',  quality:'Full',  dispatch:'View',  subcontract:'—',     inventory:'View',  mis:'View' },
+      'Stores':     { sales:'View', purchase:'Edit',  production:'View',  quality:'View',  dispatch:'Edit',  subcontract:'View',  inventory:'Full',  mis:'View' },
+      'Accounts':   { sales:'Edit', purchase:'Edit',  production:'View',  quality:'View',  dispatch:'Edit',  subcontract:'View',  inventory:'View',  mis:'Full' },
+      'Management': { sales:'View', purchase:'View',  production:'View',  quality:'View',  dispatch:'View',  subcontract:'View',  inventory:'View',  mis:'Full' }
+    },
+    modules: ['sales','purchase','production','quality','dispatch','subcontract','inventory','mis'],
+    moduleLabels: { sales:'Sales & Orders', purchase:'Purchase', production:'Production', quality:'Quality', dispatch:'Dispatch & Invoicing', subcontract:'Subcontract', inventory:'Inventory & Stock', mis:'MIS & Reports' },
+    userSearch: ''
+  }">
+
+  <!-- TOP NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 h-12 bg-[#1e3a5f] flex items-center px-4 z-50 shadow-md">
+    <span class="text-white font-bold text-base mr-2">⚙</span>
+    <a href="dashboard.html" class="text-white font-bold text-base hover:text-sky-300">MSSHPL ERP</a>
+    <span class="text-slate-300 text-xs ml-2">| Veeyes Engineering</span>
+    <div class="ml-auto flex items-center gap-3 text-white text-xs">
+      <div class="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center font-bold text-xs">SA</div>
+      <span>Sujatha Admin</span>
+      <a href="index.html" class="bg-slate-600 hover:bg-slate-500 px-2 py-1 rounded text-xs transition-colors">Logout</a>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-12 bottom-0 w-52 bg-[#1a3050] overflow-y-auto z-40 shadow-lg">
+    <div class="p-3 text-slate-400 text-xs uppercase tracking-wider font-semibold border-b border-slate-700">Modules</div>
+    <nav class="flex flex-col py-1">
+      <a href="dashboard.html" class="text-white bg-[#0f2840] hover:bg-slate-700 flex items-center gap-2 px-3 py-2.5 text-sm font-medium border-b border-slate-700/50">🏠 Home / Dashboard</a>
+      <a href="module-1-admin.html"      class="bg-[#0ea5e9] text-white flex items-center gap-2 px-3 py-2.5 text-sm font-medium">🔐 Admin &amp; Access</a>
+      <a href="module-2-masters.html"    class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📋 Master Data</a>
+      <a href="module-3-sales.html"      class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📦 Sales &amp; Orders</a>
+      <a href="module-4-purchase.html"   class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🛒 Purchase</a>
+      <a href="module-5-production.html" class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">⚙️ Production</a>
+      <a href="module-6-quality.html"    class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">✅ Quality</a>
+      <a href="module-7-dispatch.html"   class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🚚 Dispatch &amp; Invoicing</a>
+      <a href="module-8-subcontract.html" class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">🔧 Subcontract</a>
+      <a href="module-9-inventory.html"  class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📊 Inventory &amp; Stock</a>
+      <a href="module-10-mis.html"       class="text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2 px-3 py-2.5 text-sm transition-colors">📈 MIS &amp; Reports</a>
+    </nav>
+    <div class="p-3 mt-4 border-t border-slate-700">
+      <div class="text-slate-500 text-xs">v2.4.1 — Build 2026</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-52 mt-12 p-5 min-h-screen bg-slate-100">
+
+    <!-- Module Title Bar -->
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h1 class="text-xl font-bold text-[#1e3a5f]">🔐 Admin &amp; System Access</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Manage users, roles, permissions and system configuration</p>
+      </div>
+      <span class="text-xs text-slate-400 bg-white px-3 py-1.5 rounded shadow-sm border border-slate-200">MSSHPL ERP | Admin Module</span>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="flex gap-1 mb-5 border-b border-slate-200">
+      <button @click="activeTab='userrights'"  :class="activeTab==='userrights'  ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-5 py-2 rounded-t text-sm font-medium transition-colors">👤 User Rights</button>
+      <button @click="activeTab='companysetup'" :class="activeTab==='companysetup' ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-5 py-2 rounded-t text-sm font-medium transition-colors">🏢 Company Setup</button>
+      <button @click="activeTab='session'"      :class="activeTab==='session'      ? 'bg-[#0ea5e9] text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'" class="px-5 py-2 rounded-t text-sm font-medium transition-colors">🖥 Session Manager</button>
+    </div>
+
+    <!-- ===================== TAB 1: USER RIGHTS ===================== -->
+    <div x-show="activeTab==='userrights'" x-transition>
+
+      <!-- Top bar -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input x-model="userSearch" type="text" placeholder="Search users..." class="pl-8 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 w-64">
+        </div>
+        <button class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add User
+        </button>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">User ID</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Full Name</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Role</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Status</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Last Login</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(user, idx) in users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.id.toLowerCase().includes(userSearch.toLowerCase()))" :key="user.id">
+              <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3 font-mono text-slate-700 font-medium" x-text="user.id"></td>
+                <td class="px-4 py-3 text-slate-800 font-medium" x-text="user.name"></td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                    :class="{
+                      'bg-purple-100 text-purple-700': user.role==='Admin',
+                      'bg-blue-100 text-blue-700': user.role==='Sales',
+                      'bg-orange-100 text-orange-700': user.role==='Purchase',
+                      'bg-green-100 text-green-700': user.role==='Production',
+                      'bg-teal-100 text-teal-700': user.role==='Quality',
+                      'bg-yellow-100 text-yellow-700': user.role==='Stores',
+                      'bg-pink-100 text-pink-700': user.role==='Accounts',
+                      'bg-indigo-100 text-indigo-700': user.role==='Management'
+                    }"
+                    x-text="user.role"></span>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+                    Active
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-slate-500 text-xs" x-text="user.lastLogin"></td>
+                <td class="px-4 py-3">
+                  <div class="flex gap-2">
+                    <button @click="editRightsUser = editRightsUser === user.id ? null : user.id"
+                      class="px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors"
+                      :class="editRightsUser === user.id ? 'bg-sky-500 text-white border-sky-500' : 'bg-white text-sky-600 border-sky-300 hover:bg-sky-50'">
+                      Edit Rights
+                    </button>
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-lg border border-red-200 text-red-600 hover:bg-red-50 bg-white transition-colors">Deactivate</button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Rights Panel (inline, shown when Edit Rights clicked) -->
+              <tr x-show="editRightsUser === user.id" x-transition>
+                <td colspan="6" class="px-4 py-4 bg-sky-50 border-b border-sky-100">
+                  <div class="rounded-xl border border-sky-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-4 py-3 bg-sky-600 text-white flex items-center justify-between">
+                      <span class="font-semibold text-sm">Module Access Rights — <span x-text="user.name"></span> (<span x-text="user.role"></span>)</span>
+                      <button @click="editRightsUser = null" class="text-sky-200 hover:text-white text-lg leading-none">&times;</button>
+                    </div>
+                    <div class="p-4 overflow-x-auto">
+                      <table class="w-full text-xs">
+                        <thead>
+                          <tr class="border-b border-slate-200">
+                            <th class="text-left py-2 pr-4 text-slate-600 font-semibold w-44">Module</th>
+                            <th class="text-center py-2 px-3 text-slate-600 font-semibold">No Access</th>
+                            <th class="text-center py-2 px-3 text-slate-600 font-semibold">View</th>
+                            <th class="text-center py-2 px-3 text-slate-600 font-semibold">Edit</th>
+                            <th class="text-center py-2 px-3 text-slate-600 font-semibold">Full</th>
+                            <th class="text-left py-2 px-3 text-slate-600 font-semibold">Current Level</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <template x-for="mod in modules" :key="mod">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50">
+                              <td class="py-2 pr-4 font-medium text-slate-700" x-text="moduleLabels[mod]"></td>
+                              <td class="text-center py-2 px-3">
+                                <input type="radio" :name="'r-'+user.id+'-'+mod" value="—"
+                                  :checked="accessLevels[user.role] && accessLevels[user.role][mod]==='—'"
+                                  class="accent-slate-400">
+                              </td>
+                              <td class="text-center py-2 px-3">
+                                <input type="radio" :name="'r-'+user.id+'-'+mod" value="View"
+                                  :checked="accessLevels[user.role] && accessLevels[user.role][mod]==='View'"
+                                  class="accent-sky-500">
+                              </td>
+                              <td class="text-center py-2 px-3">
+                                <input type="radio" :name="'r-'+user.id+'-'+mod" value="Edit"
+                                  :checked="accessLevels[user.role] && accessLevels[user.role][mod]==='Edit'"
+                                  class="accent-amber-500">
+                              </td>
+                              <td class="text-center py-2 px-3">
+                                <input type="radio" :name="'r-'+user.id+'-'+mod" value="Full"
+                                  :checked="accessLevels[user.role] && accessLevels[user.role][mod]==='Full'"
+                                  class="accent-green-600">
+                              </td>
+                              <td class="py-2 px-3">
+                                <span class="px-2 py-0.5 rounded text-xs font-semibold"
+                                  :class="{
+                                    'bg-green-100 text-green-700': accessLevels[user.role] && accessLevels[user.role][mod]==='Full',
+                                    'bg-amber-100 text-amber-700': accessLevels[user.role] && accessLevels[user.role][mod]==='Edit',
+                                    'bg-blue-100 text-blue-700': accessLevels[user.role] && accessLevels[user.role][mod]==='View',
+                                    'bg-slate-100 text-slate-500': !accessLevels[user.role] || accessLevels[user.role][mod]==='—'
+                                  }"
+                                  x-text="(accessLevels[user.role] && accessLevels[user.role][mod]) || '—'"></span>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                      <div class="flex justify-end gap-2 mt-4">
+                        <button @click="editRightsUser = null" class="px-4 py-2 text-xs rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Cancel</button>
+                        <button class="px-4 py-2 text-xs rounded-lg bg-[#0ea5e9] hover:bg-sky-600 text-white font-medium shadow-sm transition-colors">Save Rights</button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 flex justify-between items-center">
+          <span>Showing <span x-text="users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.id.toLowerCase().includes(userSearch.toLowerCase())).length"></span> of <span x-text="users.length"></span> users</span>
+          <span class="text-slate-400">Last updated: 26 May 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 2: COMPANY SETUP ===================== -->
+    <div x-show="activeTab==='companysetup'" x-transition x-data="{ saved: false }">
+      <div class="max-w-3xl">
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-5">
+          <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-[#1e3a5f] flex items-center justify-center text-white text-sm">🏢</div>
+            <div>
+              <h3 class="font-semibold text-slate-800 text-sm">Company Information</h3>
+              <p class="text-xs text-slate-500">Legal entity and registration details</p>
+            </div>
+          </div>
+          <div class="p-5 grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Company Name <span class="text-red-500">*</span></label>
+              <input type="text" value="Veeyes Engineering Pvt Ltd" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Unit / Plant Code</label>
+              <input type="text" value="VEE-UNIT1" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">IBR Registration No.</label>
+              <input type="text" value="IBR/KAR/2019/0145" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div class="col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 1</label>
+              <input type="text" value="Plot No. 45, Industrial Estate" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div class="col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 2</label>
+              <input type="text" value="Peenya, Bangalore - 560058" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-5">
+          <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-[#1e3a5f] flex items-center justify-center text-white text-sm">📋</div>
+            <div>
+              <h3 class="font-semibold text-slate-800 text-sm">Tax &amp; Regulatory Details</h3>
+              <p class="text-xs text-slate-500">GST, PAN and statutory registrations</p>
+            </div>
+          </div>
+          <div class="p-5 grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">GST Number <span class="text-red-500">*</span></label>
+              <input type="text" value="29AABCV1234F1Z5" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">PAN Number <span class="text-red-500">*</span></label>
+              <input type="text" value="AABCV1234F" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white font-mono focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-5">
+          <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-[#1e3a5f] flex items-center justify-center text-white text-sm">📞</div>
+            <div>
+              <h3 class="font-semibold text-slate-800 text-sm">Contact Information</h3>
+              <p class="text-xs text-slate-500">Phone, email and digital presence</p>
+            </div>
+          </div>
+          <div class="p-5 grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Phone</label>
+              <input type="text" value="+91-80-28394567" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Email</label>
+              <input type="email" value="info@veeyesengineering.com" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+            </div>
+            <div class="col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">Company Logo</label>
+              <div class="flex items-center gap-3">
+                <div class="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 text-xs text-center leading-tight">Logo<br>Preview</div>
+                <div>
+                  <input type="file" class="block text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                  <p class="text-xs text-slate-400 mt-1">PNG, JPG up to 2MB. Recommended: 200×80px</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button @click="saved=true; setTimeout(()=>saved=false,3000)"
+            class="bg-[#0ea5e9] hover:bg-sky-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Save Changes
+          </button>
+          <button class="px-5 py-2.5 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">Reset</button>
+          <span x-show="saved" x-transition class="text-green-600 text-sm font-medium flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Changes saved successfully
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== TAB 3: SESSION MANAGER ===================== -->
+    <div x-show="activeTab==='session'" x-transition
+      x-data="{
+        sessions: [
+          { id: 'SES-2026-0842', user: 'Sujatha Admin',  login: '09:12:33',  ip: '192.168.1.10',  status: 'active',  idle: '2 min'  },
+          { id: 'SES-2026-0839', user: 'Ravi Kumar',     login: '08:55:14',  ip: '192.168.1.22',  status: 'idle',    idle: '34 min' },
+          { id: 'SES-2026-0835', user: 'Meena Devi',     login: '08:30:07',  ip: '192.168.1.31',  status: 'active',  idle: '5 min'  },
+          { id: 'SES-2026-0821', user: 'Suresh B',       login: '07:58:49',  ip: '192.168.1.45',  status: 'active',  idle: '12 min' },
+          { id: 'SES-2026-0810', user: 'Priya R',        login: '07:45:22',  ip: '192.168.1.58',  status: 'idle',    idle: '41 min' }
+        ]
+      }">
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block"></span>
+            5 Active Sessions
+          </div>
+          <div class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+            2 Idle (&gt;30 min)
+          </div>
+        </div>
+        <button class="px-4 py-2 text-xs rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium transition-colors">Terminate All Idle</button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Session ID</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">User</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Login Time</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">IP Address</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Idle Duration</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Status</th>
+              <th class="text-left px-4 py-3 text-slate-600 font-semibold">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="sess in sessions" :key="sess.id">
+              <tr class="border-b border-slate-100 transition-colors"
+                :class="sess.status === 'idle' ? 'bg-amber-50' : 'hover:bg-slate-50'">
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="sess.id"></td>
+                <td class="px-4 py-3 font-medium text-slate-800" x-text="sess.user"></td>
+                <td class="px-4 py-3 text-slate-600 font-mono text-xs" x-text="'26 May 2026, ' + sess.login"></td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600" x-text="sess.ip"></td>
+                <td class="px-4 py-3 text-xs font-medium" :class="sess.status==='idle' ? 'text-amber-700' : 'text-slate-600'" x-text="sess.idle"></td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                    :class="sess.status==='active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                    <span class="w-1.5 h-1.5 rounded-full inline-block" :class="sess.status==='active' ? 'bg-green-500' : 'bg-amber-500'"></span>
+                    <span x-text="sess.status==='active' ? 'Active' : 'Idle'"></span>
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <button @click="sessions = sessions.filter(s => s.id !== sess.id)"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg border border-red-200 text-red-600 hover:bg-red-50 bg-white transition-colors">
+                    Terminate
+                  </button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 flex justify-between">
+          <span><span x-text="sessions.length"></span> sessions active as of 26 May 2026</span>
+          <span class="text-slate-400">Auto-refresh every 60s</span>
+        </div>
+      </div>
+
+      <!-- Session Stats Cards -->
+      <div class="grid grid-cols-3 gap-4 mt-5">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          <div class="text-xs text-slate-500 mb-1">Total Logins Today</div>
+          <div class="text-2xl font-bold text-[#1e3a5f]">14</div>
+          <div class="text-xs text-green-600 mt-1">↑ 3 more than yesterday</div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          <div class="text-xs text-slate-500 mb-1">Avg Session Duration</div>
+          <div class="text-2xl font-bold text-[#1e3a5f]">2h 18m</div>
+          <div class="text-xs text-slate-400 mt-1">Based on last 7 days</div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          <div class="text-xs text-slate-500 mb-1">Failed Login Attempts</div>
+          <div class="text-2xl font-bold text-red-600">2</div>
+          <div class="text-xs text-red-500 mt-1">Last: 08:23 from 192.168.1.99</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>
